@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Калькулятор модулей Siemens — ASUTP TEAM</title>
+<meta name="description" content="Подбор модулей SIMATIC S7-300 / S7-1200 / S7-1500 и периферии ET 200 по количеству сигналов: спецификация с артикулами, обвязкой и ориентировочным бюджетом.">
+<style>
+:root{
+  --y:#FFF32A; --g:#00BF4C; --grad:linear-gradient(105deg,#e8d90c,#00BF4C);
+  --ink:#17211b; --mut:#5c6b62; --line:#e3e8e4; --bg:#f4f6f4; --card:#ffffff;
+  --warn-bg:#fff8e1; --warn-line:#f0d47a;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; background:var(--bg); color:var(--ink); font-size:16px; line-height:1.45}
+.wrap{max-width:760px; margin:0 auto; padding:0 14px 60px}
+header.top{background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:20}
+.top-in{max-width:760px; margin:0 auto; padding:10px 14px; display:flex; align-items:center; gap:12px}
+.top-in svg{width:40px; height:36px; flex:0 0 auto}
+.top-t b{display:block; font-size:17px; letter-spacing:.2px}
+.top-t span{display:block; font-size:12.5px; color:var(--mut)}
+h2.sec{display:flex; align-items:center; gap:10px; font-size:18px; margin:26px 0 12px}
+h2.sec .n{width:26px;height:26px;border-radius:50%;background:var(--grad);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:14px;flex:0 0 auto}
+.card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px}
+.muted{color:var(--mut); font-size:13.5px}
+/* series cards */
+.series{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
+.series button{border:1.5px solid var(--line); background:#fff; border-radius:12px; padding:12px 6px; font:inherit; cursor:pointer; text-align:center}
+.series button b{display:block; font-size:16.5px}
+.series button span{display:block; font-size:11.5px; color:var(--mut); margin-top:3px}
+.series button.on{border-color:var(--g); box-shadow:0 0 0 2.5px rgba(0,191,76,.18); background:#f4fff8}
+/* cabinets */
+.cabctl{display:flex; align-items:center; gap:12px; margin-bottom:10px}
+.step{display:flex; align-items:center; border:1.5px solid var(--line); border-radius:10px; overflow:hidden; background:#fff}
+.step button{width:42px;height:42px;border:0;background:#fff;font-size:22px;cursor:pointer;color:var(--ink)}
+.step b{min-width:34px;text-align:center;font-size:17px}
+.cab{border:1px solid var(--line); border-radius:12px; padding:12px; margin-top:10px; background:#fbfcfb}
+.cab h3{margin:0 0 8px; font-size:15px; display:flex; align-items:center; gap:8px}
+.cab h3 .tag{font-size:11px; background:var(--grad); color:#fff; padding:2px 8px; border-radius:20px; font-weight:600}
+.sig{display:grid; grid-template-columns:repeat(2,1fr); gap:8px}
+@media(min-width:560px){ .sig{grid-template-columns:repeat(4,1fr)} }
+.sig label{display:block; background:#fff; border:1px solid var(--line); border-radius:10px; padding:8px 10px 6px}
+.sig .t{font-size:12px; color:var(--mut); display:flex; align-items:center; gap:4px; white-space:nowrap}
+.sig input{width:100%; border:0; outline:0; font:inherit; font-size:18px; font-weight:600; padding:2px 0 0; background:transparent}
+/* params */
+.row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 2px; border-bottom:1px dashed var(--line); flex-wrap:wrap}
+.row:last-child{border-bottom:0}
+.row .lbl{font-size:14.5px; display:flex; align-items:center; gap:6px}
+.tgl{display:flex; border:1.5px solid var(--line); border-radius:10px; overflow:hidden}
+.tgl button{border:0; background:#fff; padding:9px 13px; font:inherit; font-size:13.5px; cursor:pointer; color:var(--mut)}
+.tgl button.on{background:var(--grad); color:#fff; font-weight:600}
+select{font:inherit; padding:8px 10px; border:1.5px solid var(--line); border-radius:10px; background:#fff; max-width:100%}
+.slider{display:flex; align-items:center; gap:10px; width:100%; max-width:330px}
+.slider input{flex:1; accent-color:var(--g)}
+.slider b{min-width:46px; text-align:right}
+/* info dots */
+.i{display:inline-flex; width:17px; height:17px; border-radius:50%; background:#dfe7e1; color:#3c4a41; font-size:11px; font-style:normal; align-items:center; justify-content:center; cursor:pointer; user-select:none; flex:0 0 auto; font-weight:700}
+#tip{position:absolute; z-index:50; max-width:290px; background:#243029; color:#fff; font-size:13px; line-height:1.45; padding:10px 12px; border-radius:10px; box-shadow:0 6px 22px rgba(0,0,0,.25); display:none}
+/* result */
+.res-cab{margin-bottom:14px}
+.res-cab h3{margin:0 0 6px; font-size:15.5px}
+table.bom{width:100%; border-collapse:collapse; font-size:13.5px; background:#fff}
+table.bom th{font-size:11.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--mut); text-align:left; padding:6px 8px; border-bottom:1.5px solid var(--line)}
+table.bom td{padding:6px 8px; border-bottom:1px solid #eef1ee; vertical-align:top}
+table.bom td.art{font-family:ui-monospace,Consolas,monospace; font-size:12.5px; white-space:nowrap}
+table.bom td.q{text-align:right; font-weight:700; white-space:nowrap}
+table.bom tr.grp td{background:#f4f8f5; font-weight:600; font-size:12px; color:#33443a}
+.bomwrap{overflow-x:auto; border:1px solid var(--line); border-radius:10px}
+.warns{background:var(--warn-bg); border:1px solid var(--warn-line); border-radius:12px; padding:10px 14px; margin:12px 0; font-size:13.5px}
+.warns ul{margin:4px 0 2px; padding-left:18px}
+.warns li{margin:3px 0}
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px}
+.chip{background:#eef4ef; border-radius:20px; padding:4px 11px; font-size:12.5px}
+.chip b{color:#0b7d38}
+.mount{font-size:13px; color:var(--mut); margin-top:8px}
+.mount b{color:var(--ink)}
+.brow{display:flex; align-items:center; gap:10px; margin:6px 0}
+.blbl{min-width:84px; font-size:12.5px; color:var(--mut); text-align:right; flex:0 0 auto}
+.bar{position:relative; flex:1; height:24px; background:#e8eee9; border-radius:7px; overflow:hidden}
+.bfill{height:100%; background:var(--grad); opacity:.8; print-color-adjust:exact; -webkit-print-color-adjust:exact}
+.bnum{position:absolute; left:10px; top:0; line-height:24px; font-size:12.5px; font-weight:700; color:#17211b}
+.bfree{min-width:76px; font-size:12.5px; color:#0b7d38; flex:0 0 auto}
+@media(max-width:560px){ .blbl{min-width:60px} .bfree{min-width:62px} }
+.budget{background:var(--card); border:2px solid transparent; background-image:linear-gradient(#fff,#fff),var(--grad); background-origin:border-box; background-clip:padding-box,border-box; border-radius:16px; padding:18px; text-align:center; margin:16px 0}
+.budget .b1{font-size:13px; color:var(--mut); text-transform:uppercase; letter-spacing:.5px}
+.budget .b2{font-size:29px; font-weight:800; margin:4px 0 2px; background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent}
+.budget .b3{font-size:12.5px; color:var(--mut)}
+.cta{background:#1b2a20; color:#fff; border-radius:16px; padding:20px 18px; margin:14px 0}
+.cta b{font-size:17.5px; display:block; margin-bottom:6px}
+.cta p{margin:0 0 14px; font-size:14px; color:#cfe0d4}
+.cta .btns{display:flex; gap:8px; flex-wrap:wrap}
+.cta a{flex:1 1 130px; text-align:center; text-decoration:none; padding:11px 14px; border-radius:10px; font-size:14.5px; font-weight:600}
+.cta a.p{background:var(--grad); color:#132018}
+.cta a.s{background:#ffffff22; color:#fff; border:1px solid #ffffff44}
+.acts{display:flex; gap:8px; flex-wrap:wrap; margin:14px 0}
+.acts button{flex:1 1 150px; font:inherit; font-size:14.5px; font-weight:600; padding:12px; border-radius:10px; border:1.5px solid var(--line); background:#fff; cursor:pointer}
+.acts button.p{background:var(--grad); border:0; color:#fff}
+.empty{padding:34px 10px; text-align:center; color:var(--mut); font-size:14.5px}
+footer.ft{border-top:1px solid var(--line); margin-top:30px; padding:16px 2px 4px; font-size:12.5px; color:var(--mut)}
+footer.ft a{color:#0b7d38; text-decoration:none}
+.echo{font-size:13px}
+.echo table{border-collapse:collapse; width:100%}
+.echo td{padding:3px 8px 3px 0; vertical-align:top}
+details.set{margin-top:6px}
+details.set summary{cursor:pointer; font-size:14px; color:var(--mut); padding:6px 0}
+.morebtn{display:block; font:inherit; font-size:13.5px; color:#0b7d38; background:none; border:1.5px dashed #b5c9bb; border-radius:10px; padding:9px 14px; cursor:pointer; margin:10px 0 2px; width:100%; text-align:left}
+.morebtn:hover{border-color:var(--g); background:#f4fff8}
+.hide{display:none !important}
+/* print */
+.print-only{display:none}
+@media print{
+  body{background:#fff; font-size:12px}
+  .no-print, header.top .no-print{display:none !important}
+  .print-only{display:block}
+  .card,.bomwrap{border-color:#bbb}
+  .budget{break-inside:avoid}
+  .res-cab{break-inside:avoid}
+  header.top{position:static; border-bottom:2px solid #222}
+  .cta{background:#fff; color:#111; border:2px solid #222}
+  .cta p{color:#333}
+  .cta .btns{display:none}
+  .cta .print-contacts{display:block; font-size:13px}
+  a{color:#111; text-decoration:none}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <svg viewBox="0 0 52.494 47.222" xmlns="http://www.w3.org/2000/svg" aria-label="ASUTP TEAM">
+      <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8d90c"/><stop offset="1" stop-color="#00BF4C"/></linearGradient></defs>
+      <g fill="url(#lg)" fill-rule="evenodd">
+        <polygon points="32.425,3.054 25.474,3.054 25.474,0.956 30.982,0.956"/>
+        <polygon points="30.982,46.602 25.474,46.602 25.474,44.504 32.557,44.504"/>
+        <path d="M23.383,16.528c-3.912,0-7.083,3.171-7.083,7.083c0,3.912,3.171,7.083,7.083,7.083V16.528z"/>
+        <path d="M23.383,32.88c-5.119,0-9.269-4.149-9.269-9.268c0-5.121,4.149-9.271,9.269-9.271V0h-2.435l-0.886,6.263c-1.268,0.241-2.488,0.616-3.645,1.113l-4.483-4.631l-2.11,1.533l-0.179,0.13L7.535,5.94l2.965,5.592c-0.867,0.926-1.638,1.943-2.293,3.04l-6.35-1.113L1.05,15.939l-0.067,0.21L0.176,18.63l5.685,2.78c-0.09,0.722-0.142,1.456-0.142,2.203c0,0.541,0.027,1.076,0.076,1.605L0,28.05l0.806,2.482l0.068,0.21l0.807,2.481l6.229-1.092c0.616,1.119,1.354,2.162,2.189,3.116l-3.023,5.7l2.11,1.534l0.179,0.13l2.111,1.533l4.396-4.545c1.141,0.537,2.347,0.952,3.604,1.236l0.904,6.387h2.609l0.221,0h0.173V32.88z"/>
+        <polygon points="34.262,13.941 25.474,13.941 25.474,11.842 35.967,11.842"/>
+        <polygon points="34.262,35.715 25.474,35.715 25.474,33.617 32.163,33.617"/>
+        <path d="M37.213,4.563c-1.207,0-2.231,0.767-2.633,1.836h-9.106v2.099h9.152c0.433,1.002,1.429,1.706,2.587,1.706c1.557,0,2.82-1.266,2.82-2.82S38.77,4.563,37.213,4.563z M37.213,8.629c-0.687,0-1.246-0.56-1.246-1.246c0-0.688,0.56-1.247,1.246-1.247c0.688,0,1.246,0.559,1.246,1.247C38.459,8.069,37.901,8.629,37.213,8.629z"/>
+        <path d="M37.269,37.295c-1.184,0-2.195,0.735-2.613,1.771h-9.182v2.098h9.182c0.417,1.036,1.43,1.771,2.613,1.771c1.555,0,2.82-1.264,2.82-2.82C40.089,38.56,38.823,37.295,37.269,37.295z M37.269,41.361c-0.688,0-1.246-0.559-1.246-1.247c0-0.686,0.558-1.246,1.246-1.246c0.687,0,1.246,0.56,1.246,1.246C38.515,40.802,37.955,41.361,37.269,41.361z"/>
+        <path d="M40.624,21.024c-1.184,0-2.195,0.735-2.613,1.771H25.474v2.098h12.537c0.418,1.036,1.43,1.771,2.613,1.771c1.556,0,2.819-1.265,2.819-2.82C43.443,22.289,42.18,21.024,40.624,21.024z M40.624,25.09c-0.688,0-1.247-0.559-1.247-1.246c0-0.688,0.56-1.247,1.247-1.247s1.246,0.559,1.246,1.247C41.87,24.531,41.312,25.09,40.624,25.09z"/>
+        <path d="M49.675,11.908c-1.159,0-2.155,0.703-2.588,1.705h-9.152v0.253l-0.065-0.319l-3.738,3.739h-8.657v2.099h9.182l3.673-3.607l-0.014-0.065h8.728c0.4,1.069,1.425,1.836,2.633,1.836c1.556,0,2.819-1.265,2.819-2.82C52.494,13.173,51.23,11.908,49.675,11.908z M49.675,15.974c-0.688,0-1.247-0.559-1.247-1.246c0-0.688,0.56-1.247,1.247-1.247s1.246,0.559,1.246,1.247C50.921,15.415,50.362,15.974,49.675,15.974z"/>
+        <path d="M46.154,30.031c-1.176,0-2.184,0.724-2.605,1.749h-6.793l-3.543-3.607h-7.739v2.098h6.818l3.478,3.607h7.765c0.412,1.047,1.428,1.793,2.62,1.793c1.555,0,2.82-1.265,2.82-2.82C48.975,31.297,47.709,30.031,46.154,30.031z M46.154,34.098c-0.687,0-1.246-0.559-1.246-1.246c0-0.688,0.56-1.246,1.246-1.246c0.688,0,1.246,0.559,1.246,1.246C47.4,33.539,46.842,34.098,46.154,34.098z"/>
+      </g>
+    </svg>
+    <div class="top-t">
+      <b>Калькулятор модулей Siemens</b>
+      <span>SIMATIC S7-300 · S7-1200 · S7-1500 · ET 200 — от ASUTP TEAM</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="no-print">
+    <h2 class="sec"><span class="n">1</span>Серия контроллера</h2>
+    <div class="series" id="series">
+      <button data-s="s300"><b>S7-300</b><span>классика и модернизации</span></button>
+      <button data-s="s1200"><b>S7-1200</b><span>компактные задачи</span></button>
+      <button data-s="s1500"><b>S7-1500</b><span>актуальная линейка</span></button>
+    </div>
+    <div class="card" style="margin-top:10px">
+      <div class="row" style="border-bottom:0">
+        <span class="lbl">Контроллер <i class="i" data-tip="«Уже есть» — для модернизаций и расширений: CPU, карта памяти, БП и рейка центрального шкафа не попадут в спецификацию, посчитаем только добавляемые модули и периферию. Модель своего ПЛК укажите в списке ниже — от неё зависят борт-каналы и лимиты подбора.">i</i></span>
+        <div class="tgl" id="haveCpu">
+          <button data-v="0">Новый</button>
+          <button data-v="1">Уже есть</button>
+        </div>
+      </div>
+      <div id="haveCpuSelWrap" class="hide" style="padding:2px 2px 6px">
+        <select id="haveCpuSel" style="width:100%"></select>
+      </div>
+    </div>
+
+    <h2 class="sec"><span class="n">2</span>Шкафы и сигналы</h2>
+    <div class="card">
+      <div class="cabctl">
+        <span class="lbl">Количество шкафов <i class="i" data-tip="Шкаф 1 — центральный, в нём стоит контроллер. Остальные шкафы комплектуются станциями распределённой периферии ET 200 и связываются с CPU по сети.">i</i></span>
+        <div class="step"><button id="cabMinus">−</button><b id="cabN">1</b><button id="cabPlus">+</button></div>
+      </div>
+      <div id="cabs"></div>
+    </div>
+    <button class="morebtn" id="commOpenBtn">+ Устройства связи (RS-232/485, PROFIBUS)</button>
+    <div class="card hide" id="commCard">
+      <div class="lbl" style="margin-bottom:8px">Устройства связи <i class="i" data-tip="Приборы на последовательных интерфейсах и полевых шинах: весы, анализаторы, частотники, устройства сторонних производителей. Модули связи размещаются в центральном шкафу у CPU.">i</i></div>
+      <div class="sig">
+        <label><span class="t">RS-232, портов <i class="i" data-tip="Точка-точка: одно устройство = один порт = один модуль связи.">i</i></span><input type="number" min="0" max="99" inputmode="numeric" placeholder="0" id="comm232"></label>
+        <label><span class="t">RS-485/422, портов <i class="i" data-tip="Шина: на один порт до 32 устройств (Modbus RTU и др.), но скорость опроса делится на всех. Считайте порты, а не устройства.">i</i></span><input type="number" min="0" max="99" inputmode="numeric" placeholder="0" id="comm485"></label>
+        <label><span class="t">PROFIBUS, устройств <i class="i" data-tip="DP-устройства: частотники, весовые терминалы и т.п. Вешаются на DP-мастер (добавим его, если ещё нет) — плюс разъём на каждое устройство.">i</i></span><input type="number" min="0" max="99" inputmode="numeric" placeholder="0" id="commDP"></label>
+        <label><span class="t">PROFINET, устройств <i class="i" data-tip="Устройства с PROFINET-интерфейсом: частотники, весы, клапанные острова. Вешаются в сеть PROFINET; при двух и более узлах в сети добавим коммутатор в шкаф CPU.">i</i></span><input type="number" min="0" max="99" inputmode="numeric" placeholder="0" id="commPN"></label>
+      </div>
+    </div>
+
+    <h2 class="sec" id="paramsHead"><span class="n">3</span>Параметры подбора</h2>
+    <div class="card" id="params">
+      <div class="row" id="rowDo">
+        <span class="lbl">Дискретные выходы <i class="i" data-tip="Транзисторные (24 В DC, до 0,5 А) — быстрые, для частых переключений и малых нагрузок. Релейные — коммутируют 230 В и большие токи, но ресурс контактов ограничен.">i</i></span>
+        <div class="tgl" id="doType">
+          <button data-v="t">Транзисторные</button>
+          <button data-v="r">Релейные</button>
+        </div>
+      </div>
+      <div class="row">
+        <span class="lbl">Запас по каналам <i class="i" data-tip="Резерв свободных каналов на будущие сигналы. По умолчанию — 15 %. Запас закрывается свободными каналами на подобранных модулях; на импульсные каналы запас не применяется.">i</i></span>
+        <div class="slider"><input type="range" id="reserve" min="0" max="30" step="5" value="15"><b id="reserveV">15 %</b></div>
+      </div>
+      <div class="row" id="rowFast">
+        <span class="lbl">Импульсным нужен быстрый счёт? <i class="i" data-tip="Энкодеры и частоты выше ~50–100 Гц — только аппаратный счётчик (HSC / FM 350-1 / TM Count). Редкие импульсы расходомеров (единицы Гц) можно считать обычным дискретным входом с обработкой в OB35 — тогда модули счёта не нужны, каналы уйдут в обычные DI.">i</i></span>
+        <div class="tgl" id="fast">
+          <button data-v="1">Да, аппаратный</button>
+          <button data-v="0">Нет, хватит DI + OB35</button>
+        </div>
+      </div>
+      <div class="row" id="rowExp">
+        <span class="lbl">Расширение S7-300 при переполнении рейки <i class="i" data-tip="Куда ставить модули, не поместившиеся на центральную рейку (8 мест). Стойки расширения IM 360/361 — просто и без сети, но кабель до 10 м и максимум 4 стойки. Станция ET 200 — гибче: по сети, в любом месте. «Авто» — калькулятор решит сам: есть сеть периферии в проекте → станция, нет → стойки.">i</i></span>
+        <div class="tgl" id="exp300">
+          <button data-v="auto">Авто</button>
+          <button data-v="im">Стойки IM 360/361</button>
+          <button data-v="et">Станция ET 200</button>
+        </div>
+      </div>
+      <div class="row" id="rowNet">
+        <span class="lbl">Сеть периферии <i class="i" data-tip="PROFIBUS DP — проверенная полевая шина до 12 Мбит/с, нужны разъёмы и терминация на крайних узлах. PROFINET — промышленный Ethernet; при двух и более станциях закладываем звезду с коммутатором в шкафу CPU.">i</i></span>
+        <div class="tgl" id="net">
+          <button data-v="pb">PROFIBUS</button>
+          <button data-v="pn">PROFINET</button>
+        </div>
+      </div>
+      <div class="row" id="rowStn">
+        <span class="lbl">Станции периферии <i class="i" data-tip="1. ET 200M — крупные модули формата S7-300 в удалённой корзине: выгодно при большом числе каналов в шкафу. 2. ET 200S — компактная модульная станция под небольшие узлы. 3. ET 200SP — актуальная линейка, самая плотная по каналам. Станция подставляется автоматически под серию CPU, но её можно сменить вручную.">i</i></span>
+        <div class="tgl" id="stn">
+          <button data-v="m">ET 200M</button>
+          <button data-v="s">ET 200S</button>
+          <button data-v="sp">ET 200SP</button>
+        </div>
+      </div>
+      <div class="row" id="rowFC">
+          <span class="lbl">Фронтштекеры (S7-300 / ET 200M) <i class="i" data-tip="Модули S7-300 поставляются без фронтштекеров — их обязательно заказывать отдельно: 20-полюсные для модулей до 16 каналов, 40-полюсные для 32-канальных. Винтовые зажимы — классика; пружинные — быстрее в монтаже.">i</i></span>
+          <div class="tgl" id="fcType">
+            <button data-v="screw">Винтовые</button>
+            <button data-v="spring">Пружинные</button>
+          </div>
+        </div>
+        <div class="row" id="rowCard">
+          <span class="lbl">Карта памяти для S7-1200 <i class="i" data-tip="S7-1200 работает и без карты — программа хранится во встроенной памяти. Карта нужна для переноса проекта, обновления прошивки и расширения памяти. Для S7-300 и S7-1500 карта обязательна и добавляется автоматически.">i</i></span>
+          <div class="tgl" id="card1200">
+            <button data-v="0">Не класть</button>
+            <button data-v="1">Добавить</button>
+          </div>
+        </div>
+    </div>
+  </div>
+
+  <h2 class="sec" id="resAnchor"><span class="n" id="resNum">4</span>Результат</h2>
+  <div id="result"></div>
+
+  <footer class="ft">
+    <div>Сделано <a href="https://asutp.team" target="_blank" rel="noopener">ASUTP TEAM</a> — автоматизация технологических процессов. Телеграм-канал: <a href="https://t.me/daniil_asutp_team" target="_blank" rel="noopener">t.me/daniil_asutp_team</a></div>
+    <div style="margin-top:6px">Расчёт и цены ориентировочные и не заменяют проектирование. Проверяйте компоновку и актуальность артикулов по каталогу Siemens. Цены: <span id="pdate"></span>, вилка учитывает разброс поставщиков.</div>
+    <div style="margin-top:6px">Версия 1.0α (альфа-тест)</div>
+  </footer>
+</div>
+
+<div id="tip"></div>
+
+<script>
+/* ================= ДАННЫЕ =================
+   Цены: ориентировочные, ₽, обновляются здесь одним местом. */
+const PRICES_DATE = 'август 2026';
+
+const CAT = {}; // art -> {name, price}
+function reg(art, name, price){ CAT[art] = {name:name, price:price}; return art; }
+
+/* ---------- S7-300 ---------- */
+const M300 = {
+  DI16:  {art:reg('6ES7321-1BH02-0AA0','SM 321, DI 16×24 В DC',28000), t:'DI', ch:16, fc:20},
+  DI32:  {art:reg('6ES7321-1BL00-0AA0','SM 321, DI 32×24 В DC',48000), t:'DI', ch:32, fc:40},
+  DO16:  {art:reg('6ES7322-1BH01-0AA0','SM 322, DO 16×24 В DC/0,5 А',30000), t:'DO', ch:16, fc:20},
+  DO32:  {art:reg('6ES7322-1BL00-0AA0','SM 322, DO 32×24 В DC/0,5 А',55000), t:'DO', ch:32, fc:40},
+  DO8R:  {art:reg('6ES7322-1HF01-0AA0','SM 322, DO 8×реле 2 А',26000), t:'DO', ch:8, fc:20},
+  DO16R: {art:reg('6ES7322-1HH01-0AA0','SM 322, DO 16×реле',38000), t:'DO', ch:16, fc:20},
+  AI8:   {art:reg('6ES7331-7KF02-0AB0','SM 331, AI 8×12 бит, универсальный (U/I/RTD/TC)',65000), t:'AI', ch:8, fc:20},
+  RTD8:  {art:reg('6ES7331-7PF01-0AB0','SM 331, AI 8×RTD (термосопротивления)',78000), t:'RTD', ch:8, fc:40},
+  TC8:   {art:reg('6ES7331-7PF11-0AB0','SM 331, AI 8×TC (термопары)',78000), t:'TC', ch:8, fc:40},
+  AO2:   {art:reg('6ES7332-5HB01-0AB0','SM 332, AO 2×12 бит',45000), t:'AO', ch:2, fc:20},
+  AO4:   {art:reg('6ES7332-5HD01-0AB0','SM 332, AO 4×12 бит',62000), t:'AO', ch:4, fc:20},
+  AO8:   {art:reg('6ES7332-5HF00-0AB0','SM 332, AO 8×12 бит',95000), t:'AO', ch:8, fc:40},
+  FM350: {art:reg('6ES7350-1AH03-0AE0','FM 350-1, счётчик 1 канал, 500 кГц',68000), t:'CNT', ch:1, fc:20}
+};
+const PAL300 = {
+  DI:[M300.DI32, M300.DI16],
+  DOt:[M300.DO32, M300.DO16],
+  DOr:[M300.DO16R, M300.DO8R],
+  AI:[M300.AI8], RTD:[M300.RTD8], TC:[M300.TC8],
+  AO:[M300.AO8, M300.AO4, M300.AO2],
+  CNT:[M300.FM350]
+};
+const C300_312   = {art:reg('6ES7312-1AE14-0AB0','CPU 312',90000), name:'CPU 312', net:'mpi', w:40, maxRacks:1, autoSkip:true};
+const C300_312C  = {art:reg('6ES7312-5BF04-0AB0','CPU 312C (борт: 10 DI / 6 DO)',110000), name:'CPU 312C', net:'mpi', w:80, onboard:{DI:10,DO:6,AI:0,AO:0}, fcOnb:[40], maxRacks:1, autoSkip:true};
+const C300_313C  = {art:reg('6ES7313-5BG04-0AB0','CPU 313C (борт: 24 DI / 16 DO / 4 AI / 2 AO)',180000), name:'CPU 313C', net:'mpi', w:120, onboard:{DI:24,DO:16,AI:4,AO:2}, fcOnb:[40,40]};
+const C300_313C2 = {art:reg('6ES7313-6CG04-0AB0','CPU 313C-2 DP (борт: 16 DI / 16 DO)',200000), name:'CPU 313C-2 DP', net:'dp', w:120, onboard:{DI:16,DO:16,AI:0,AO:0}, fcOnb:[40], autoSkip:true};
+const C300_314   = {art:reg('6ES7314-1AG14-0AB0','CPU 314',160000), name:'CPU 314', net:'mpi', w:40};
+const C300_314CD = {art:reg('6ES7314-6CH04-0AB0','CPU 314C-2 DP (борт: 24 DI / 16 DO / 4 AI / 2 AO)',260000), name:'CPU 314C-2 DP', net:'dp', w:120, onboard:{DI:24,DO:16,AI:4,AO:2}, fcOnb:[40,40], autoSkip:true};
+const C300_314CP = {art:reg('6ES7314-6EH04-0AB0','CPU 314C-2 PN/DP (борт: 24 DI / 16 DO / 4 AI / 2 AO)',310000), name:'CPU 314C-2 PN/DP', net:'pn', w:120, onboard:{DI:24,DO:16,AI:4,AO:2}, fcOnb:[40,40], autoSkip:true};
+const C300_315D  = {art:reg('6ES7315-2AH14-0AB0','CPU 315-2 DP',260000), name:'CPU 315-2 DP', net:'dp', w:40};
+const C300_315P  = {art:reg('6ES7315-2EH14-0AB0','CPU 315-2 PN/DP',320000), name:'CPU 315-2 PN/DP', net:'pn', w:40};
+const C300_317D  = {art:reg('6ES7317-2AK14-0AB0','CPU 317-2 DP',420000), name:'CPU 317-2 DP', net:'dp', w:80};
+const C300_317P  = {art:reg('6ES7317-2EK14-0AB0','CPU 317-2 PN/DP',520000), name:'CPU 317-2 PN/DP', net:'pn', w:80};
+const C300_319   = {art:reg('6ES7318-3EL01-0AB0','CPU 319-3 PN/DP',800000), name:'CPU 319-3 PN/DP', net:'pn', w:120, autoSkip:true};
+const C300_IM7   = {art:reg('6ES7151-7AA21-0AB0','IM 151-7 CPU — контроллер в станции ET 200S',90000), name:'IM 151-7 CPU (ET 200S)', net:'dp', stn:'s', autoSkip:true};
+const C300_IM8   = {art:reg('6ES7151-8AB01-0AB0','IM 151-8 PN/DP CPU — контроллер в станции ET 200S',130000), name:'IM 151-8 PN/DP CPU (ET 200S)', net:'pn', stn:'s', autoSkip:true};
+const CPU300 = [C300_312, C300_312C, C300_313C, C300_313C2, C300_314, C300_314CD, C300_314CP, C300_315D, C300_315P, C300_317D, C300_317P, C300_319, C300_IM7, C300_IM8];
+const ETSCPU_DPM = reg('6ES7138-4HA00-0AB0','Модуль DP-Master для IM 151-7 CPU',25000);
+const A300 = {
+  fc20s: reg('6ES7392-1AJ00-0AA0','Фронтштекер 20-пол., винтовые зажимы',4000),
+  fc40s: reg('6ES7392-1AM00-0AA0','Фронтштекер 40-пол., винтовые зажимы',7000),
+  fc20p: reg('6ES7392-1BJ00-0AA0','Фронтштекер 20-пол., пружинные зажимы',4500),
+  fc40p: reg('6ES7392-1BM01-0AA0','Фронтштекер 40-пол., пружинные зажимы',7500),
+  rail160: reg('6ES7390-1AB60-0AA0','Профильная шина S7-300, 160 мм',4000),
+  rail482: reg('6ES7390-1AE80-0AA0','Профильная шина S7-300, 482 мм',7000),
+  rail530: reg('6ES7390-1AF30-0AA0','Профильная шина S7-300, 530 мм',8000),
+  rail830: reg('6ES7390-1AJ30-0AA0','Профильная шина S7-300, 830 мм',12000),
+  ps2:  reg('6ES7307-1BA01-0AA0','PS 307, блок питания 24 В / 2 А',18000),
+  ps5:  reg('6ES7307-1EA01-0AA0','PS 307, блок питания 24 В / 5 А',26000),
+  ps10: reg('6ES7307-1KA02-0AA0','PS 307, блок питания 24 В / 10 А',38000),
+  mmc:  reg('6ES7953-8LJ31-0AA0','Микрокарта памяти MMC, 512 Кбайт',10000),
+  im360: reg('6ES7360-3AA01-0AA0','IM 360, интерфейсный модуль (центральная стойка)',28000),
+  im361: reg('6ES7361-3CA01-0AA0','IM 361, интерфейсный модуль (стойка расширения)',34000),
+  cable368: reg('6ES7368-3BC51-0AA0','Соединительный кабель IM 360/361, 2,5 м',8000)
+};
+const railTable300 = [ {mm:160, art:'rail160'}, {mm:482, art:'rail482'}, {mm:530, art:'rail530'}, {mm:830, art:'rail830'} ];
+
+/* ---------- S7-1200 ---------- */
+const M1200 = {
+  DI8:  {art:reg('6ES7221-1BF32-0XB0','SM 1221, DI 8×24 В DC',18000), t:'DI', ch:8, w:45},
+  DI16: {art:reg('6ES7221-1BH32-0XB0','SM 1221, DI 16×24 В DC',26000), t:'DI', ch:16, w:45},
+  DO8:  {art:reg('6ES7222-1BF32-0XB0','SM 1222, DO 8×24 В DC/0,5 А',19000), t:'DO', ch:8, w:45},
+  DO16: {art:reg('6ES7222-1BH32-0XB0','SM 1222, DO 16×24 В DC/0,5 А',28000), t:'DO', ch:16, w:45},
+  DO8R: {art:reg('6ES7222-1HF32-0XB0','SM 1222, DO 8×реле 2 А',19000), t:'DO', ch:8, w:45},
+  DO16R:{art:reg('6ES7222-1HH32-0XB0','SM 1222, DO 16×реле 2 А',29000), t:'DO', ch:16, w:45},
+  AI4:  {art:reg('6ES7231-4HD32-0XB0','SM 1231, AI 4×13 бит (U/I)',33000), t:'AI', ch:4, w:45},
+  AI8:  {art:reg('6ES7231-4HF32-0XB0','SM 1231, AI 8×13 бит (U/I)',52000), t:'AI', ch:8, w:70},
+  RTD4: {art:reg('6ES7231-5PD32-0XB0','SM 1231, AI 4×RTD',48000), t:'RTD', ch:4, w:45},
+  RTD8: {art:reg('6ES7231-5PF32-0XB0','SM 1231, AI 8×RTD',72000), t:'RTD', ch:8, w:70},
+  TC4:  {art:reg('6ES7231-5QD32-0XB0','SM 1231, AI 4×TC (термопары)',46000), t:'TC', ch:4, w:45},
+  TC8:  {art:reg('6ES7231-5QF32-0XB0','SM 1231, AI 8×TC (термопары)',70000), t:'TC', ch:8, w:70},
+  AO2:  {art:reg('6ES7232-4HB32-0XB0','SM 1232, AO 2×14 бит',38000), t:'AO', ch:2, w:45},
+  AO4:  {art:reg('6ES7232-4HD32-0XB0','SM 1232, AO 4×14 бит',55000), t:'AO', ch:4, w:45},
+  CMB16:{art:reg('6ES7223-1BL32-0XB0','SM 1223, DI 16 / DO 16 (24 В DC)',38000), t:'DIDO', chI:16, chO:16, w:70},
+  CMB16R:{art:reg('6ES7223-1PL32-0XB0','SM 1223, DI 16 / DO 16 (реле)',40000), t:'DIDO', chI:16, chO:16, w:70},
+  SBAI: {art:reg('6ES7231-4HA30-0XB0','SB 1231, сигнальная плата AI 1×12 бит',14000), t:'AI', ch:1, sb:true, w:0},
+  SBAO: {art:reg('6ES7232-4HA30-0XB0','SB 1232, сигнальная плата AO 1×12 бит',15000), t:'AO', ch:1, sb:true, w:0}
+};
+const PAL1200 = {
+  DI:[M1200.DI16, M1200.DI8],
+  DOt:[M1200.DO16, M1200.DO8],
+  DOr:[M1200.DO16R, M1200.DO8R],
+  AI:[M1200.AI8, M1200.AI4], RTD:[M1200.RTD8, M1200.RTD4], TC:[M1200.TC8, M1200.TC4],
+  AO:[M1200.AO4, M1200.AO2],
+  CNT:[] // онборд-HSC
+};
+const CPU1200 = [
+  {name:'CPU 1211C', maxSM:0, onboard:{DI:6,DO:4,AI:0,AO:0}, hsc:3,
+   arts:{t:reg('6ES7211-1AE40-0XB0','CPU 1211C DC/DC/DC (борт: 6 DI / 4 DO / 2 AI)',35000),
+         r:reg('6ES7211-1HE40-0XB0','CPU 1211C DC/DC/Rly (борт: 6 DI / 4 DO / 2 AI)',35000),
+         a:reg('6ES7211-1BE40-0XB0','CPU 1211C AC/DC/Rly (борт: 6 DI / 4 DO / 2 AI)',36000)}},
+  {name:'CPU 1212C', maxSM:2, onboard:{DI:8,DO:6,AI:0,AO:0}, hsc:4,
+   arts:{t:reg('6ES7212-1AE40-0XB0','CPU 1212C DC/DC/DC (борт: 8 DI / 6 DO / 2 AI)',42000),
+         r:reg('6ES7212-1HE40-0XB0','CPU 1212C DC/DC/Rly (борт: 8 DI / 6 DO / 2 AI)',42000),
+         a:reg('6ES7212-1BE40-0XB0','CPU 1212C AC/DC/Rly (борт: 8 DI / 6 DO / 2 AI)',43000)}},
+  {name:'CPU 1214C', maxSM:8, onboard:{DI:14,DO:10,AI:0,AO:0}, hsc:6,
+   arts:{t:reg('6ES7214-1AG40-0XB0','CPU 1214C DC/DC/DC (борт: 14 DI / 10 DO / 2 AI)',62000),
+         r:reg('6ES7214-1HG40-0XB0','CPU 1214C DC/DC/Rly (борт: 14 DI / 10 DO / 2 AI)',62000),
+         a:reg('6ES7214-1BG40-0XB0','CPU 1214C AC/DC/Rly (борт: 14 DI / 10 DO / 2 AI)',63000)}},
+  {name:'CPU 1215C', maxSM:8, onboard:{DI:14,DO:10,AI:0,AO:2}, hsc:6, ports:2,
+   arts:{t:reg('6ES7215-1AG40-0XB0','CPU 1215C DC/DC/DC (борт: 14 DI / 10 DO / 2 AI / 2 AO)',85000),
+         r:reg('6ES7215-1HG40-0XB0','CPU 1215C DC/DC/Rly (борт: 14 DI / 10 DO / 2 AI / 2 AO)',85000),
+         a:reg('6ES7215-1BG40-0XB0','CPU 1215C AC/DC/Rly (борт: 14 DI / 10 DO / 2 AI / 2 AO)',86000)}},
+  {name:'CPU 1217C', maxSM:8, onboard:{DI:14,DO:10,AI:0,AO:2}, hsc:6, ports:2, autoSkip:true,
+   arts:{t:reg('6ES7217-1AG40-0XB0','CPU 1217C DC/DC/DC (борт: 14 DI / 10 DO / 2 AI / 2 AO, HSC до 1 МГц)',120000)}}
+];
+const A1200 = {
+  cm12435: reg('6GK7243-5DX30-0XE0','CM 1243-5, мастер PROFIBUS DP для S7-1200',55000),
+  csm1277: reg('6GK7277-1AA10-0AA0','CSM 1277, неуправляемый коммутатор 4×RJ45',22000),
+  pm1207:  reg('6EP1332-1SH71','PM 1207, блок питания 24 В / 2,5 А',14000),
+  card4:   reg('6ES7954-8LC03-0AA0','Карта памяти SIMATIC, 4 Мбайт',9000)
+};
+
+/* ---------- S7-1500 ---------- */
+const M1500 = {
+  DI16: {art:reg('6ES7521-1BH00-0AB0','DI 16×24 В DC HF',26000), t:'DI', ch:16, fc1500:true},
+  DI32: {art:reg('6ES7521-1BL00-0AB0','DI 32×24 В DC HF',45000), t:'DI', ch:32, fc1500:true},
+  DO16: {art:reg('6ES7522-1BH01-0AB0','DQ 16×24 В DC/0,5 А HF',30000), t:'DO', ch:16, fc1500:true},
+  DO32: {art:reg('6ES7522-1BL01-0AB0','DQ 32×24 В DC/0,5 А HF',52000), t:'DO', ch:32, fc1500:true},
+  DO8R: {art:reg('6ES7522-5HF00-0AB0','DQ 8×230 В AC/5 А, реле',28000), t:'DO', ch:8, fc1500:true},
+  AI8:  {art:reg('6ES7531-7KF00-0AB0','AI 8×U/I/RTD/TC ST, универсальный',88000), t:'AI', ch:8, fc1500:true},
+  RTD4: {art:reg('6ES7531-7KF00-0AB0','AI 8×U/I/RTD/TC ST, универсальный',88000), t:'RTD', ch:4, fc1500:true},
+  TC8:  {art:reg('6ES7531-7KF00-0AB0','AI 8×U/I/RTD/TC ST, универсальный',88000), t:'TC', ch:8, fc1500:true},
+  AO4:  {art:reg('6ES7532-5HD00-0AB0','AQ 4×U/I ST',75000), t:'AO', ch:4, fc1500:true},
+  AO8:  {art:reg('6ES7532-5HF00-0AB0','AQ 8×U/I HS',120000), t:'AO', ch:8, fc1500:true},
+  TMC:  {art:reg('6ES7550-1AA00-0AB0','TM Count 2×24V, счётчик 2 канала',65000), t:'CNT', ch:2, fc1500:false}
+};
+const PAL1500 = {
+  DI:[M1500.DI32, M1500.DI16],
+  DOt:[M1500.DO32, M1500.DO16],
+  DOr:[M1500.DO8R],
+  AI:[M1500.AI8], RTD:[M1500.RTD4], TC:[M1500.TC8],
+  AO:[M1500.AO8, M1500.AO4],
+  CNT:[M1500.TMC]
+};
+const C15_11C  = {art:reg('6ES7511-1CL03-0AB0','CPU 1511C-1 PN (борт: 16 DI / 16 DO / 4 AI / 2 AO; штекеры в комплекте)',200000), name:'CPU 1511C-1 PN', w:85, onboard:{DI:16,DO:16,AI:4,AO:2}, autoSkip:true};
+const C15_11   = {art:reg('6ES7511-1AL03-0AB0','CPU 1511-1 PN',190000), name:'CPU 1511-1 PN', w:35};
+const C15_12C  = {art:reg('6ES7512-1CM03-0AB0','CPU 1512C-1 PN (борт: 32 DI / 32 DO / 4 AI / 2 AO; штекеры в комплекте)',260000), name:'CPU 1512C-1 PN', w:110, onboard:{DI:32,DO:32,AI:4,AO:2}, autoSkip:true};
+const C15_13   = {art:reg('6ES7513-1AM03-0AB0','CPU 1513-1 PN',260000), name:'CPU 1513-1 PN', w:35};
+const C15_15   = {art:reg('6ES7515-2AN03-0AB0','CPU 1515-2 PN',370000), name:'CPU 1515-2 PN', w:70};
+const C15_16   = {art:reg('6ES7516-3AP03-0AB0','CPU 1516-3 PN/DP (встроенный PROFIBUS)',480000), name:'CPU 1516-3 PN/DP', w:70, dp:true, autoSkip:true};
+const C15_17   = {art:reg('6ES7517-3AP00-0AB0','CPU 1517-3 PN/DP',700000), name:'CPU 1517-3 PN/DP', w:175, dp:true, autoSkip:true};
+const C15_18   = {art:reg('6ES7518-4AP00-0AB0','CPU 1518-4 PN/DP',1100000), name:'CPU 1518-4 PN/DP', w:175, dp:true, autoSkip:true};
+const C15_10SP = {art:reg('6ES7510-1DK03-0AB0','CPU 1510SP-1 PN — контроллер в станции ET 200SP',120000), name:'CPU 1510SP-1 PN (ET 200SP)', stn:'sp', autoSkip:true};
+const C15_12SP = {art:reg('6ES7512-1DM03-0AB0','CPU 1512SP-1 PN — контроллер в станции ET 200SP',180000), name:'CPU 1512SP-1 PN (ET 200SP)', stn:'sp', autoSkip:true};
+const CPU1500 = [C15_11C, C15_11, C15_12C, C15_13, C15_15, C15_16, C15_17, C15_18, C15_10SP, C15_12SP];
+const A1500 = {
+  fc40: reg('6ES7592-1BM00-0XB0','Фронтштекер 40-пол. push-in (модули 35 мм)',8000),
+  rail482: reg('6ES7590-1AE80-0AA0','Монтажная шина S7-1500, 482 мм',9000),
+  rail530: reg('6ES7590-1AF30-0AA0','Монтажная шина S7-1500, 530 мм',10000),
+  rail830: reg('6ES7590-1AJ30-0AA0','Монтажная шина S7-1500, 830 мм',14000),
+  card12: reg('6ES7954-8LE03-0AA0','Карта памяти SIMATIC, 12 Мбайт',18000),
+  pm3: reg('6EP1332-4BA00','PM 1507, блок питания 24 В / 3 А',22000),
+  pm8: reg('6EP1333-4BA00','PM 1507, блок питания 24 В / 8 А',32000),
+  cm15425: reg('6GK7542-5DX00-0XE0','CM 1542-5, мастер PROFIBUS DP для S7-1500',90000)
+};
+const railTable1500 = [ {mm:482, art:'rail482'}, {mm:530, art:'rail530'}, {mm:830, art:'rail830'} ];
+
+/* ---------- ET 200M (модули S7-300) ---------- */
+const ETM = {
+  imDP: reg('6ES7153-1AA03-0XB0','IM 153-1, интерфейсный модуль ET 200M (PROFIBUS DP)',32000),
+  imPN: reg('6ES7153-4BA00-0XB0','IM 153-4 PN, интерфейсный модуль ET 200M (PROFINET)',55000),
+  cap:8
+};
+
+/* ---------- ET 200S ---------- */
+const MS = {
+  DI8: {art:reg('6ES7131-4BF00-0AA0','ЭМ 8 DI, 24 В DC',12000), t:'DI', ch:8},
+  DO8: {art:reg('6ES7132-4BF00-0AA0','ЭМ 8 DO, 24 В DC/0,5 А',14000), t:'DO', ch:8},
+  AI2: {art:reg('6ES7134-4GB01-0AB0','ЭМ 2 AI, ток 2-пров. (4–20 мА)',22000), t:'AI', ch:2},
+  RTD2:{art:reg('6ES7134-4JB51-0AB0','ЭМ 2 AI RTD',26000), t:'RTD', ch:2},
+  TC2: {art:reg('6ES7134-4JB00-0AB0','ЭМ 2 AI TC (термопары)',26000), t:'TC', ch:2},
+  AO2: {art:reg('6ES7135-4GB01-0AB0','ЭМ 2 AO, ток',24000), t:'AO', ch:2},
+  CNT1:{art:reg('6ES7138-4DA04-0AB0','1 Count, счётчик 24 В / 100 кГц',28000), t:'CNT', ch:1}
+};
+const PALS = {
+  DI:[MS.DI8], DOt:[MS.DO8], DOr:[MS.DO8],
+  AI:[MS.AI2], RTD:[MS.RTD2], TC:[MS.TC2], AO:[MS.AO2], CNT:[MS.CNT1]
+};
+const ETS = {
+  imDP: reg('6ES7151-1AA06-0AB0','IM 151-1 STANDARD, интерфейсный модуль ET 200S (PROFIBUS DP)',28000),
+  imPN: reg('6ES7151-3AA23-0AB0','IM 151-3 PN, интерфейсный модуль ET 200S (PROFINET)',45000),
+  tme:  reg('6ES7193-4CB20-0AA0','Терминальный модуль TM-E15S24-01 (упаковка 5 шт.)',12000),
+  tmp:  reg('6ES7193-4CC20-0AA0','Терминальный модуль TM-P (под модуль питания)',3000),
+  pme:  reg('6ES7138-4CA01-0AA0','PM-E, модуль питания 24 В DC',8000),
+  cap:63, dorNote:true
+};
+
+/* ---------- ET 200SP ---------- */
+const MSP = {
+  DI16:{art:reg('6ES7131-6BH01-0BA0','DI 16×24 В DC ST',16000), t:'DI', ch:16},
+  DO16:{art:reg('6ES7132-6BH01-0BA0','DQ 16×24 В DC/0,5 А ST',18000), t:'DO', ch:16},
+  AI8: {art:reg('6ES7134-6GF00-0AA1','AI 8×I 2-/4-пров. BA (4–20 мА)',35000), t:'AI', ch:8},
+  RTD4:{art:reg('6ES7134-6JD00-0CA1','AI 4×RTD/TC HF (универсальный)',34000), t:'RTD', ch:4},
+  TC4: {art:reg('6ES7134-6JD00-0CA1','AI 4×RTD/TC HF (универсальный)',34000), t:'TC', ch:4},
+  AO4: {art:reg('6ES7135-6HD00-0BA1','AQ 4×U/I ST',40000), t:'AO', ch:4},
+  TMC: {art:reg('6ES7138-6AA01-0BA0','TM Count 1×24V, счётчик',30000), t:'CNT', ch:1}
+};
+const PALSP = {
+  DI:[MSP.DI16], DOt:[MSP.DO16], DOr:[MSP.DO16],
+  AI:[MSP.AI8], RTD:[MSP.RTD4], TC:[MSP.TC4], AO:[MSP.AO4], CNT:[MSP.TMC]
+};
+const ETSP = {
+  imPN: reg('6ES7155-6AU02-0BN0','IM 155-6 PN ST, интерфейсный модуль ET 200SP (в компл. серверный модуль)',42000),
+  imDP: reg('6ES7155-6BA01-0CN0','IM 155-6 DP HF, интерфейсный модуль ET 200SP (PROFIBUS)',55000),
+  ba:   reg('6ES7193-6AR00-0AA0','BusAdapter BA 2×RJ45 (для IM 155-6 PN)',8000),
+  buL:  reg('6ES7193-6BP00-0DA0','BaseUnit BU15-P16+A0+2D, светлая (новая потенц. группа)',3500),
+  buD:  reg('6ES7193-6BP00-0BA0','BaseUnit BU15-P16+A0+2B, тёмная',3000),
+  cap:32, dorNote:true
+};
+
+/* ---------- Общее ---------- */
+const NET = {
+  pbConn: reg('6ES7972-0BA52-0XA0','Разъём PROFIBUS, 90°',3500),
+  sitop5: reg('6EP1333-2BA20','SITOP PSU100S, блок питания 24 В / 5 А',20000),
+  sitop10: reg('6EP1334-2BA20','SITOP PSU100S, блок питания 24 В / 10 А',30000),
+  xb005: reg('6GK5005-0BA00-1AB2','SCALANCE XB005, коммутатор 5×RJ45',25000),
+  xb008: reg('6GK5008-0BA00-1AB2','SCALANCE XB008, коммутатор 8×RJ45',35000)
+};
+
+/* ---------- Модули последовательной связи ---------- */
+const COMM = {
+  s300_232: reg('6ES7341-1AH02-0AE0','CP 341, RS-232C',90000),
+  s300_485: reg('6ES7341-1CH02-0AE0','CP 341, RS-422/485',95000),
+  s1200_232: reg('6ES7241-1AH32-0XB0','CM 1241, RS-232',25000),
+  s1200_485: reg('6ES7241-1CH32-0XB0','CM 1241, RS-422/485',26000),
+  s1500_232: reg('6ES7540-1AD00-0AA0','CM PtP RS-232 BA',45000),
+  s1500_485: reg('6ES7540-1AB00-0AA0','CM PtP RS-422/485 BA',45000)
+};
+
+/* ================= ДВИЖОК ================= */
+const TYPES = ['DI','DO','AI','RTD','TC','AO','CNT'];
+const TNAME = {DI:'DI', DO:'DO', AI:'AI 4–20 мА', RTD:'AI RTD', TC:'AI TC', AO:'AO', CNT:'Импульсные'};
+
+function ceil(x){ return Math.ceil(x - 1e-9); }
+
+/* Покрыть need каналов модулями палитры (по убыванию каналов): минимум модулей */
+function cover(need, sizes){
+  const out = [];
+  if(need<=0 || !sizes || !sizes.length) return out;
+  const big = sizes[0];
+  while(need > big.ch){ out.push({mod:big, used:big.ch}); need -= big.ch; }
+  let last = null;
+  for(let i=sizes.length-1;i>=0;i--){ if(sizes[i].ch>=need){ last=sizes[i]; break; } }
+  if(!last) last = big;
+  out.push({mod:last, used:need});
+  return out;
+}
+
+/* Покрыть все типы сигналов локации; вернуть units=[{mod,used}] и provided по типам */
+function coverAll(needs, pal, doType){
+  let units = [];
+  const provided = {DI:0,DO:0,AI:0,RTD:0,TC:0,AO:0,CNT:0};
+  for(const t of TYPES){
+    const n = needs[t]||0; if(n<=0) continue;
+    const key = (t==='DO') ? (doType==='r'?'DOr':'DOt') : t;
+    const us = cover(n, pal[key]);
+    us.forEach(u=>{ u.t = t; provided[t] += u.mod.ch; });
+    units = units.concat(us);
+  }
+  return {units, provided};
+}
+
+/* S7-1200: комбо-модули DI/DO и сигнальные платы для мелких остатков */
+function optimize1200(units, provided, doType, sbFree){
+  const lastOf = t => { for(let i=units.length-1;i>=0;i--) if(units[i].t===t) return i; return -1; };
+  const di = lastOf('DI'), dq = lastOf('DO');
+  if(di>=0 && dq>=0 && units[di].used<=16 && units[dq].used<=16){
+    const cmb = (doType==='r') ? M1200.CMB16R : M1200.CMB16;
+    provided.DI += 16 - units[di].mod.ch;
+    provided.DO += 16 - units[dq].mod.ch;
+    const keep = units.filter((u,i)=> i!==di && i!==dq);
+    keep.push({mod:cmb, used:units[di].used, t:'DIDO'});
+    units = keep;
+  }
+  if(sbFree){
+    const ao = lastOf('AO');
+    if(ao>=0 && units[ao] && units[ao].used===1){
+      provided.AO += 1 - units[ao].mod.ch;
+      units.splice(ao,1);
+      units.push({mod:M1200.SBAO, used:1, t:'AO', sb:true});
+      sbFree = false;
+    } else {
+      const ai = lastOf('AI');
+      if(ai>=0 && units[ai] && units[ai].used===1){
+        provided.AI += 1 - units[ai].mod.ch;
+        units.splice(ai,1);
+        units.push({mod:M1200.SBAI, used:1, t:'AI', sb:true});
+        sbFree = false;
+      }
+    }
+  }
+  return {units, provided};
+}
+
+function railFor(widthMM, table){
+  for(const r of table){ if(widthMM <= r.mm) return r.art; }
+  return table[table.length-1].art;
+}
+
+function psu300(nMods){ return nMods<=4 ? A300.ps2 : (nMods<=10 ? A300.ps5 : A300.ps10); }
+function sitop(nMods){ return nMods<=10 ? NET.sitop5 : NET.sitop10; }
+
+/* BOM helpers */
+function BOM(){ this.items = new Map(); this.order = []; }
+BOM.prototype.add = function(art, qty, group){
+  if(!art || qty<=0) return;
+  const k = group + '|' + art;
+  if(!this.items.has(k)){ this.items.set(k, {art, qty:0, group}); this.order.push(k); }
+  this.items.get(k).qty += qty;
+};
+BOM.prototype.list = function(){ return this.order.map(k=>this.items.get(k)); };
+
+const GRP = {CPU:'Контроллер', IM:'Интерфейсы и связь', MOD:'Модули ввода-вывода', ACC:'Обвязка и аксессуары', PWR:'Питание', NET:'Сеть'};
+
+/* Разложить юниты по станциям и укомплектовать станцию */
+function packStations(units, stnType, net, bom, hints, fcArt20, fcArt40, widths){
+  // ET 200M: IM 153-1 (DP) — 8 модулей, IM 153-4 PN HF — 12 модулей на станцию
+  const cap = stnType==='m' ? (net==='pb' ? 8 : 12) : (stnType==='s' ? ETS.cap : ETSP.cap);
+  const nSt = Math.max(1, ceil(units.length/cap));
+  for(let s=0; s<nSt; s++){
+    const part = units.slice(s*cap, (s+1)*cap);
+    if(stnType==='m'){
+      bom.add(net==='pb'?ETM.imDP:ETM.imPN, 1, GRP.IM);
+      let fc20=0, fc40=0, w=40;
+      part.forEach(u=>{ bom.add(u.mod.art,1,GRP.MOD); if(u.mod.fc===20) fc20++; if(u.mod.fc===40) fc40++; w+=40; });
+      bom.add(fcArt20, fc20, GRP.ACC); bom.add(fcArt40, fc40, GRP.ACC);
+      bom.add(A300[railFor(w+30, railTable300)], 1, GRP.ACC);
+      if(widths) widths.push(w);
+    } else if(stnType==='s'){
+      bom.add(net==='pb'?ETS.imDP:ETS.imPN, 1, GRP.IM);
+      part.forEach(u=> bom.add(u.mod.art,1,GRP.MOD));
+      const pme = Math.max(1, ceil(part.length/8));
+      bom.add(ETS.pme, pme, GRP.ACC);
+      bom.add(ETS.tmp, pme, GRP.ACC);
+      bom.add(ETS.tme, ceil(part.length/5), GRP.ACC);
+      if(s===0) hints.push('Каждому электронному модулю ET 200S нужен терминальный модуль TM-E (в упаковке 5 шт.), каждому модулю питания PM-E — TM-P.');
+      if(widths) widths.push(60 + 15*(part.length + 2*pme + 1));
+    } else {
+      bom.add(net==='pb'?ETSP.imDP:ETSP.imPN, 1, GRP.IM);
+      if(net==='pn') bom.add(ETSP.ba, 1, GRP.IM);
+      part.forEach(u=> bom.add(u.mod.art,1,GRP.MOD));
+      const grpTypes = {};
+      part.forEach(u=> grpTypes[u.t] = (grpTypes[u.t]||0)+1);
+      const nGrp = Math.max(1, Object.keys(grpTypes).length);
+      bom.add(ETSP.buL, nGrp, GRP.ACC);
+      bom.add(ETSP.buD, Math.max(0, part.length-nGrp), GRP.ACC);
+      if(s===0) hints.push('BaseUnit: на каждый тип сигналов — своя светлая BU с подводом питания (новая потенциальная группа), внутри типа — тёмные.');
+      if(widths) widths.push(75 + 15*part.length);
+    }
+  }
+  return nSt;
+}
+
+/* ============ Главный расчёт ============ */
+function compute(st){
+  const res = {cabs:[], warnings:[], free:{}, nodes:0, cpuName:'', cpuArt:'', stations:0, total:0};
+  const r = 1 + st.reserve/100;
+  const doType = st.doType;
+  const c232 = st.comm232|0, c485 = st.comm485|0, cDP = st.commDP|0, cPN = st.commPN|0;
+
+  // Потребности по шкафам (с запасом; импульсные без запаса)
+  const needs = st.cabs.map(c=>{
+    const n = {};
+    for(const t of ['DI','DO','AI','RTD','TC','AO']) n[t] = ceil((c[t]||0)*r);
+    n.CNT = c.CNT||0;
+    if(!st.fast){ n.DI += ceil((c.CNT||0)*r); n.CNT = 0; }
+    return n;
+  });
+  const raw = {};
+  for(const t of TYPES) raw[t] = st.cabs.reduce((a,c)=>a+(c[t]||0),0);
+  if(!st.fast){ raw.DI += raw.CNT; raw.CNT = 0; }
+
+  const anySignal = TYPES.some(t=> raw[t]>0);
+  if(!anySignal) return null;
+
+  const provCabs = needs.map(()=> ({DI:0,DO:0,AI:0,RTD:0,TC:0,AO:0,CNT:0}));
+  const provided = provCabs[0]; // центральный шкаф пишет сюда по ссылке
+  const remoteCabs = needs.length-1;
+  const stnPal = st.stn==='m' ? PAL300 : (st.stn==='s' ? PALS : PALSP);
+  const fcArt20 = st.fcType==='screw' ? A300.fc20s : A300.fc20p;
+  const fcArt40 = st.fcType==='screw' ? A300.fc40s : A300.fc40p;
+
+  let totalStations = 0;
+  let masters = 1;
+
+  /* ---- центральный шкаф ---- */
+  const bom0 = new BOM();
+  const hints0 = [];
+  const rowW0 = [];
+  let spareW0 = 0;
+  const cN = Object.assign({}, needs[0]);
+  let cpu = null, cpuArt = '', sbFree = false;
+
+  if(st.series==='s1200'){
+    // выбор CPU: перебор кандидатов
+    let pick = null, pickUnits=null, pickProv=null, hscUsed=0;
+    const isOvr = c => c.arts.t===st.cpuOverride || c.arts.r===st.cpuOverride || c.arts.a===st.cpuOverride;
+    const artOf = c => (st.cpuOverride!=='auto' && isOvr(c)) ? st.cpuOverride : (doType==='r' ? (c.arts.r || c.arts.t) : c.arts.t);
+    let candidates = st.cpuOverride!=='auto' ? CPU1200.filter(isOvr) : CPU1200.filter(c=>!c.autoSkip);
+    if(!candidates.length) candidates = CPU1200.filter(c=>!c.autoSkip);
+    for(const cand of candidates){
+      const nn = Object.assign({}, cN);
+      hscUsed = 0;
+      if(st.fast && nn.CNT>0){
+        hscUsed = Math.min(nn.CNT, cand.hsc);
+        if(nn.CNT > cand.hsc) {/* остаток остаётся как warning ниже */}
+        nn.CNT = 0;
+      }
+      if(!st.haveCPU){
+        // борт существующего CPU не зачитываем — он занят старыми сигналами
+        const ob = Object.assign({}, cand.onboard);
+        ob.DI = Math.max(0, ob.DI - 2*hscUsed);
+        for(const t of ['DI','DO','AO']) nn[t] = Math.max(0, nn[t] - (ob[t]||0));
+      }
+      // онборд AI (0–10 В) не зачитываем против 4–20 мА
+      const cv = coverAll(nn, PAL1200, doType);
+      const op = optimize1200(cv.units, cv.provided, doType, true);
+      if(op.units.filter(u=>!u.sb).length <= cand.maxSM || cand===candidates[candidates.length-1]){
+        pick = cand; pickUnits = op.units; pickProv = op.provided;
+        break;
+      }
+    }
+    cpu = pick;
+    cpuArt = artOf(pick);
+    if(pick.arts.a === cpuArt) hints0.push('CPU с питанием 230 В AC — БП 24 В в расчёте оставлен: он питает датчики и модули.');
+    if(!st.haveCPU) for(const t of ['DI','DO','AO']) provided[t] += pick.onboard[t]||0;
+    if(st.fast && cN.CNT>0){
+      const used = Math.min(cN.CNT, pick.hsc);
+      provided.CNT += used;
+      if(!st.haveCPU){
+        provided.DI -= Math.min(2*used, pick.onboard.DI);
+        hints0.push('Быстрый счёт — на встроенных HSC (' + used + ' шт.); каждый энкодер A/B занимает 2 борт-входа.');
+      } else {
+        hints0.push('Быстрый счёт — на встроенных HSC существующего CPU (' + used + ' шт.) — убедитесь, что счётчики и нужные борт-входы свободны.');
+      }
+      if(cN.CNT > pick.hsc) res.warnings.push('Импульсных каналов больше, чем HSC у ' + pick.name + ' (' + pick.hsc + '). Лишние вынесите в периферию (TM Count) или уберите быстрый счёт.');
+    }
+    for(const t of TYPES) provided[t] += pickProv[t]||0;
+    if(!st.haveCPU) bom0.add(cpuArt, 1, GRP.CPU);
+    if(st.card1200 && !st.haveCPU) bom0.add(A1200.card4, 1, GRP.CPU);
+    if(c232>0) bom0.add(COMM.s1200_232, c232, GRP.IM);
+    if(c485>0) bom0.add(COMM.s1200_485, c485, GRP.IM);
+    const dpm1200 = (st.net==='pb' && remoteCabs>0) || cDP>0;
+    if(c232 + c485 + (dpm1200?1:0) > 3) res.warnings.push('У S7-1200 максимум 3 коммуникационных модуля слева от CPU — сократите количество портов или разнесите связь.');
+    if(c485>0) hints0.push('На один порт RS-485 сажается до 32 устройств шиной (Modbus RTU и др.) — скорость опроса делится на всех.');
+    // переполнение SM
+    const smUnits = pickUnits.filter(u=>!u.sb);
+    let central = pickUnits, overflowNeeds = null;
+    if(smUnits.length > cpu.maxSM){
+      const keep = [], move = [];
+      let kept = 0;
+      for(const u of pickUnits){
+        if(u.sb || kept < cpu.maxSM){ keep.push(u); if(!u.sb) kept++; }
+        else move.push(u);
+      }
+      central = keep;
+      overflowNeeds = {DI:0,DO:0,AI:0,RTD:0,TC:0,AO:0,CNT:0};
+      move.forEach(u=>{
+        if(u.t==='DIDO'){ overflowNeeds.DI+=u.used; overflowNeeds.DO+=u.used; provided.DI-=u.mod.chI; provided.DO-=u.mod.chO; }
+        else { overflowNeeds[u.t]+=u.used; provided[u.t]-=u.mod.ch; }
+      });
+      res.warnings.push('В центральном шкафу больше модулей, чем допускает ' + cpu.name + ' (' + cpu.maxSM + ' SM) — избыток вынесен в станцию ET 200 в том же шкафу.');
+    }
+    central.forEach(u=> bom0.add(u.mod.art, 1, GRP.MOD));
+    if(central.some(u=>u.sb)) hints0.push('Мелкий аналоговый остаток закрыт сигнальной платой SB — она ставится в слот на самом CPU и не занимает место на рейке.');
+    if(overflowNeeds){
+      const cv2 = coverAll(overflowNeeds, stnPal, doType);
+      cv2.units.forEach(u=>{ provided[u.t]+=u.mod.ch; });
+      totalStations += packStations(cv2.units, st.stn, st.net, bom0, hints0, fcArt20, fcArt40, rowW0);
+    }
+    const nMods = bom0.list().filter(i=>i.group===GRP.MOD).reduce((a,i)=>a+i.qty,0);
+    if(!st.haveCPU) bom0.add(nMods<=4 ? A1200.pm1207 : sitop(nMods), 1, GRP.PWR);
+    else hints0.push('CPU, карта памяти и БП не посчитаны — они уже есть. Проверьте свободные слоты (у ' + pick.name + ' максимум ' + pick.maxSM + ' модулей расширения) и запас БП по току.');
+    hints0.push('Встроенные AI (0–10 В) не зачтены против сигналов 4–20 мА — для токовых датчиков нужны модули SM 1231.');
+    hints0.push('Монтаж — на стандартную DIN-рейку 35 мм, спец-шина не нужна.');
+    const cpuW12 = {'CPU 1211C':90,'CPU 1212C':90,'CPU 1214C':110,'CPU 1215C':130,'CPU 1217C':150}[pick.name]||110;
+    const smW12 = central.filter(u=>!u.sb).reduce((a,u)=> a + (u.mod.w||45), 0) + 30*(c232+c485);
+    if(st.haveCPU) spareW0 = smW12; else rowW0.unshift(cpuW12 + smW12 + 70);
+  }
+
+  if(st.series==='s300'){
+    // импульсные: FM 350-1 в юниты
+    const cv = coverAll(cN, PAL300, doType);
+    let units = cv.units;
+    for(const t of TYPES) provided[t] += cv.provided[t];
+    // выбор CPU
+    const willRemote = remoteCabs>0;
+    const needPN300 = (willRemote && st.net==='pn') || cPN>0;
+    const needDP300 = (willRemote && st.net==='pb') || cDP>0;
+    let cpu3;
+    if(st.cpuOverride!=='auto'){
+      cpu3 = CPU300.find(c=>c.art===st.cpuOverride) || C300_315D;
+    } else {
+      const big = (units.length + c232 + c485) > 16;
+      if(needPN300){
+        cpu3 = big?C300_317P:C300_315P;
+      } else if(needDP300){
+        cpu3 = big?C300_317D:C300_315D;
+      } else {
+        const fits313 = !st.haveCPU && C300_313C.onboard.DI>=cN.DI && C300_313C.onboard.DO>=cN.DO && C300_313C.onboard.AI>=cN.AI && C300_313C.onboard.AO>=cN.AO && !cN.RTD && !cN.TC && !cN.CNT && !c232 && !c485;
+        cpu3 = fits313 ? C300_313C : (units.length<=8 ? C300_314 : C300_315D);
+      }
+    }
+    cpu = cpu3; cpuArt = cpu3.art;
+    if(st.haveCPU && cpu3.onboard) hints0.push('Бортовые каналы ' + cpu3.name + ' в покрытие новых сигналов не зачтены — считаем их занятыми существующими цепями.');
+    if(cpu3.stn==='s'){
+      // контроллер в форм-факторе станции ET 200S: модули набираются прямо в его станцию
+      const cvS = coverAll(cN, PALS, doType);
+      const unitsS = cvS.units;
+      for(const t of TYPES) provided[t] = cvS.provided[t];
+      if(c232>0 || c485>0) res.warnings.push('Порты RS-232/485 для контроллера в форм-факторе ET 200S в v1 не подбираются — уточните отдельно.');
+      if(((willRemote && st.net==='pn') || cPN>0) && cpu3.net!=='pn') res.warnings.push('Для PROFINET (периферия или устройства) нужен IM 151-8 PN/DP CPU.');
+      if(!st.haveCPU){
+        bom0.add(cpuArt, 1, GRP.CPU);
+        bom0.add(A300.mmc, 1, GRP.CPU);
+      } else hints0.push('CPU, карта памяти и БП не посчитаны — они уже есть. Проверьте свободные позиции в станции (у ' + cpu3.name + ' — до 63 модулей).');
+      if((cDP>0 || (willRemote && st.net==='pb')) && cpu3.net==='dp'){
+        bom0.add(ETSCPU_DPM, 1, GRP.IM);
+        hints0.push('Мастером PROFIBUS IM 151-7 CPU работает через модуль DP-Master — добавлен.');
+      }
+      const inCpu = unitsS.slice(0, 63);
+      inCpu.forEach(u=> bom0.add(u.mod.art, 1, GRP.MOD));
+      const pmeN = Math.max(1, ceil(inCpu.length/8));
+      bom0.add(ETS.pme, pmeN, GRP.ACC);
+      bom0.add(ETS.tmp, pmeN, GRP.ACC);
+      bom0.add(ETS.tme, ceil(inCpu.length/5), GRP.ACC);
+      hints0.push('Модули набираются прямо в станцию контроллера (до 63 шт.): терминальные модули TM-E/TM-P и модули питания PM-E добавлены.');
+      if(unitsS.length>63) totalStations += packStations(unitsS.slice(63), 's', st.net, bom0, hints0, fcArt20, fcArt40, rowW0);
+      if(!st.haveCPU) bom0.add(sitop(inCpu.length), 1, GRP.PWR);
+      rowW0.push(60 + 15*(inCpu.length + 2*pmeN + 1) + 70);
+    } else {
+    if(cpu3.onboard && !st.haveCPU){
+      // пересчёт с учётом борта
+      const nn = Object.assign({}, cN);
+      for(const t of ['DI','DO','AI','AO']) nn[t] = Math.max(0, nn[t] - (cpu3.onboard[t]||0));
+      const cv2 = coverAll(nn, PAL300, doType);
+      units = cv2.units;
+      for(const t of TYPES) provided[t] = cv2.provided[t];
+      for(const t of ['DI','DO','AI','AO']) provided[t] += cpu3.onboard[t]||0;
+      hints0.push('Часть сигналов закрыта бортовыми каналами ' + cpu3.name + '.');
+    }
+    for(let k=0;k<c485;k++) units.unshift({mod:{art:COMM.s300_485, ch:0}, used:0, t:'COMM'});
+    for(let k=0;k<c232;k++) units.unshift({mod:{art:COMM.s300_232, ch:0}, used:0, t:'COMM'});
+    if(c485>0) hints0.push('Для Modbus RTU на CP 341 нужен загружаемый драйвер с аппаратным ключом (лицензия Modbus) — не забудьте включить в заказ.');
+    if(needPN300 && cpu3.net!=='pn') res.warnings.push('Для периферии по PROFINET у S7-300 нужен CPU PN/DP — выбранный ' + cpu3.name + ' не подходит.');
+    if(needDP300 && cpu3.net==='mpi') res.warnings.push('Для PROFIBUS (периферия или устройства) нужен CPU с DP-портом — выбранный ' + cpu3.name + ' не подходит.');
+    if(!st.haveCPU){
+      bom0.add(cpuArt, 1, GRP.CPU);
+      bom0.add(A300.mmc, 1, GRP.CPU);
+      if(cpu3.fcOnb){
+        cpu3.fcOnb.forEach(p=> bom0.add(p===40?fcArt40:fcArt20, 1, GRP.ACC));
+        hints0.push('Бортовые каналы ' + cpu3.name + ' подключаются через фронтштекеры (' + cpu3.fcOnb.length + ' шт.) — добавлены в спецификацию.');
+      }
+    }
+    // размещение: стойки или ET
+    const mode = st.exp300==='auto' ? (willRemote ? 'et' : 'im') : st.exp300;
+    let racks = ceil(units.length/8) || 1;
+    let central = units, moveNeeds = null;
+    if(units.length>8 && mode==='et'){
+      central = units.slice(0,8);
+      moveNeeds = {DI:0,DO:0,AI:0,RTD:0,TC:0,AO:0,CNT:0};
+      units.slice(8).forEach(u=>{ moveNeeds[u.t]+=u.used; provided[u.t]-=u.mod.ch; });
+      racks = 1;
+      hints0.push('Центральная рейка заполнена (8 модулей) — избыток вынесен в станцию ET 200 в этом же шкафу.');
+    }
+    const maxR = cpu3.maxRacks || 4;
+    if(racks>maxR){
+      const keep = units.slice(0, maxR*8);
+      moveNeeds = {DI:0,DO:0,AI:0,RTD:0,TC:0,AO:0,CNT:0};
+      units.slice(maxR*8).forEach(u=>{ moveNeeds[u.t]+=u.used; provided[u.t]-=u.mod.ch; });
+      central = keep; racks = maxR;
+      res.warnings.push(maxR===1
+        ? cpu3.name + ' поддерживает только центральную стойку (без IM 360/361) — избыток вынесен в станцию ET 200.'
+        : 'Больше 4 стоек S7-300 не бывает — избыток вынесен в станцию ET 200.');
+    }
+    // BOM центральной части
+    let fc20=0, fc40=0;
+    central.forEach(u=>{ bom0.add(u.mod.art,1, u.t==='COMM'?GRP.IM:GRP.MOD); if(u.mod.fc===20) fc20++; if(u.mod.fc===40) fc40++; });
+    bom0.add(fcArt20, fc20, GRP.ACC); bom0.add(fcArt40, fc40, GRP.ACC);
+    if(racks>1){
+      bom0.add(A300.im360, 1, GRP.IM);
+      bom0.add(A300.im361, racks-1, GRP.IM);
+      bom0.add(A300.cable368, racks-1, GRP.IM);
+      hints0.push('Стойки соединяются кабелем IM 360/361 (в расчёте 2,5 м; доступны 1–10 м) — все стойки в одном шкафу или рядом.');
+    }
+    for(let rk=0; rk<racks; rk++){
+      if(rk===0 && st.haveCPU) continue;
+      const inRack = Math.min(8, central.length - rk*8);
+      const w = (rk===0 ? 80 + cpu3.w + (racks>1?40:0) : 40) + 40*Math.max(0,inRack);
+      bom0.add(A300[railFor(w+30, railTable300)], 1, GRP.ACC);
+      rowW0.push(w);
+    }
+    if(st.haveCPU) spareW0 = 40*central.length;
+    if(moveNeeds && TYPES.some(t=>moveNeeds[t]>0)){
+      const cv3 = coverAll(moveNeeds, stnPal, doType);
+      cv3.units.forEach(u=>{ provided[u.t]+=u.mod.ch; });
+      totalStations += packStations(cv3.units, st.stn, st.net, bom0, hints0, fcArt20, fcArt40, rowW0);
+    }
+    const nMods = bom0.list().filter(i=>i.group===GRP.MOD).reduce((a,i)=>a+i.qty,0);
+    if(!st.haveCPU) bom0.add(psu300(nMods), 1, GRP.PWR);
+    else hints0.push('CPU, карта памяти, БП и центральная рейка не посчитаны — они уже есть. Проверьте свободные слоты (у ' + cpu3.name + ': стоек до ' + (cpu3.maxRacks||4) + ', по 8 слотов на стойку) и запас БП по току.');
+    if(cN.CNT>0 && st.fast) hints0.push('Каждый FM 350-1 считает один энкодер (до 500 кГц). Несколько медленных счётов можно объединить на FM 350-2 (8 каналов) — уточняйте по задаче.');
+    }
+  }
+
+  if(st.series==='s1500'){
+    const cv = coverAll(cN, PAL1500, doType);
+    let units = cv.units;
+    for(const t of TYPES) provided[t] += cv.provided[t];
+    let cpu5;
+    const commN = c232 + c485;
+    if(st.cpuOverride!=='auto') cpu5 = CPU1500.find(c=>c.art===st.cpuOverride) || C15_11;
+    else cpu5 = (units.length+commN<=10 && remoteCabs<=2) ? C15_11 : ((units.length+commN<=20 && remoteCabs<=4) ? C15_13 : C15_15);
+    cpu = cpu5; cpuArt = cpu5.art;
+    if(cpu5.stn==='sp'){
+      // контроллер в форм-факторе станции ET 200SP
+      const cvS = coverAll(cN, PALSP, doType);
+      const unitsS = cvS.units;
+      for(const t of TYPES) provided[t] = cvS.provided[t];
+      if(c232>0 || c485>0) res.warnings.push('Порты RS-232/485 для контроллера в форм-факторе ET 200SP в v1 не подбираются — уточните отдельно.');
+      if(cDP>0 || (remoteCabs>0 && st.net==='pb')) res.warnings.push('У CPU 151xSP нет PROFIBUS — для DP-периферии или DP-устройств выберите другой CPU.');
+      if(!st.haveCPU){
+        bom0.add(cpuArt, 1, GRP.CPU);
+        bom0.add(A1500.card12, 1, GRP.CPU);
+        bom0.add(ETSP.ba, 1, GRP.IM);
+        hints0.push('Подключение CPU 151xSP к PROFINET — через BusAdapter BA 2×RJ45 (добавлен).');
+      } else hints0.push('CPU, карта, BusAdapter и БП не посчитаны — они уже есть. Проверьте свободные позиции в станции (у ' + cpu5.name + ' — до 64 модулей).');
+      const inCpu = unitsS.slice(0, 64);
+      inCpu.forEach(u=> bom0.add(u.mod.art, 1, GRP.MOD));
+      const grpT0 = {};
+      inCpu.forEach(u=> grpT0[u.t] = (grpT0[u.t]||0)+1);
+      const nGrp0 = Math.max(1, Object.keys(grpT0).length);
+      bom0.add(ETSP.buL, nGrp0, GRP.ACC);
+      bom0.add(ETSP.buD, Math.max(0, inCpu.length-nGrp0), GRP.ACC);
+      hints0.push('Модули набираются прямо в станцию контроллера (до 64 шт.). BaseUnit: на каждый тип сигналов — своя светлая BU с подводом питания, внутри типа — тёмные.');
+      if(unitsS.length>64) totalStations += packStations(unitsS.slice(64), 'sp', st.net, bom0, hints0, fcArt20, fcArt40, rowW0);
+      if(!st.haveCPU) bom0.add(sitop(inCpu.length), 1, GRP.PWR);
+      rowW0.push(110 + 15*inCpu.length + 70);
+    } else {
+    if(cpu5.onboard && !st.haveCPU){
+      const nn = Object.assign({}, cN);
+      for(const t of ['DI','DO','AI','AO']) nn[t] = Math.max(0, nn[t] - (cpu5.onboard[t]||0));
+      const cv2 = coverAll(nn, PAL1500, doType);
+      units = cv2.units;
+      for(const t of TYPES) provided[t] = cv2.provided[t];
+      for(const t of ['DI','DO','AI','AO']) provided[t] += cpu5.onboard[t]||0;
+      hints0.push('Часть сигналов закрыта бортовыми каналами ' + cpu5.name + '.');
+    }
+    for(let k=0;k<c485;k++) units.unshift({mod:{art:COMM.s1500_485, ch:0, fc1500:false}, used:0, t:'COMM'});
+    for(let k=0;k<c232;k++) units.unshift({mod:{art:COMM.s1500_232, ch:0, fc1500:false}, used:0, t:'COMM'});
+    if(!st.haveCPU){
+      bom0.add(cpuArt, 1, GRP.CPU);
+      bom0.add(A1500.card12, 1, GRP.CPU);
+      if(cpu5.fcOnb){
+        cpu5.fcOnb.forEach(()=> bom0.add(A1500.fc40, 1, GRP.ACC));
+        hints0.push('Борт ' + cpu5.name + ' подключается через фронтштекеры (' + cpu5.fcOnb.length + ' шт.) — добавлены; комплектность уточните по каталогу.');
+      }
+    }
+    let central = units, moveNeeds=null;
+    if(units.length>30){
+      central = units.slice(0,30);
+      moveNeeds = {DI:0,DO:0,AI:0,RTD:0,TC:0,AO:0,CNT:0};
+      units.slice(30).forEach(u=>{ moveNeeds[u.t]+=u.used; provided[u.t]-=u.mod.ch; });
+      res.warnings.push('Превышен лимит модулей центральной стойки S7-1500 — избыток вынесен в станцию ET 200.');
+    }
+    central.forEach(u=> bom0.add(u.mod.art,1, u.t==='COMM'?GRP.IM:GRP.MOD));
+    const nFC = central.filter(u=>u.mod.fc1500).length;
+    bom0.add(A1500.fc40, nFC, GRP.ACC);
+    if(nFC>0) hints0.push('Фронтштекеры у 35-мм модулей S7-1500 в комплект поставки не входят — добавлены отдельными позициями.');
+    if(!st.haveCPU){
+      const w = 75 + cpu5.w + 35*central.length;
+      bom0.add(A1500[railFor(w+40, railTable1500)], 1, GRP.ACC);
+      rowW0.push(w);
+    } else spareW0 = 35*central.length;
+    if(moveNeeds){
+      const cv3 = coverAll(moveNeeds, stnPal, doType);
+      cv3.units.forEach(u=>{ provided[u.t]+=u.mod.ch; });
+      totalStations += packStations(cv3.units, st.stn, st.net, bom0, hints0, fcArt20, fcArt40, rowW0);
+    }
+    if(!st.haveCPU) bom0.add(central.length<=10 ? A1500.pm3 : A1500.pm8, 1, GRP.PWR);
+    else hints0.push('CPU, карта памяти, БП и монтажная шина не посчитаны — они уже есть. Проверьте свободные слоты (в центральной стойке S7-1500 — до 30 модулей) и запас БП по току.');
+    if(central.length>12) hints0.push('Модулей больше 12 — проверьте бюджет питания по шине (может понадобиться системный БП PS в середине стойки).');
+    if((cN.RTD||0)>0) hints0.push('На универсальном AI-модуле для RTD по 4-проводной схеме доступны только 4 канала из 8 — учтено в расчёте.');
+    }
+  }
+
+  res.cabs.push({title:'Шкаф 1 — центральный (CPU)', bom:bom0, hints:hints0,
+    mount: st.haveCPU ? {spare:true, w:spareW0} : {spare:false, w: rowW0.length ? Math.max.apply(null, rowW0) : 0}});
+
+  /* ---- удалённые шкафы ---- */
+  for(let i=1;i<needs.length;i++){
+    const bom = new BOM(); const hints=[]; const stW = [];
+    const cv = coverAll(needs[i], stnPal, doType);
+    cv.units.forEach(u=>{ provCabs[i][u.t]+=u.mod.ch; });
+    const nSt = packStations(cv.units, st.stn, st.net, bom, hints, fcArt20, fcArt40, stW);
+    totalStations += nSt;
+    const nMods = cv.units.length;
+    if(st.stn==='m') bom.add(psu300(nMods), 1, GRP.PWR);
+    else bom.add(sitop(nMods), 1, GRP.PWR);
+    if(stW.length) stW[0] += (st.stn==='m' ? 80 : 70); // БП в том же ряду
+    if(nSt>1) hints.push('Каналов много — в шкафу ' + nSt + ' станции ET 200 (по вместимости интерфейсного модуля).');
+    res.cabs.push({title:'Шкаф ' + (i+1) + ' — периферия ET 200' + (st.stn==='m'?'M':(st.stn==='s'?'S':'SP')), bom, hints,
+      mount:{spare:false, w: stW.length ? Math.max.apply(null, stW) : 0}});
+  }
+
+  /* ---- сеть ---- */
+  const periphPB = totalStations>0 && st.net==='pb';
+  const periphPN = totalStations>0 && st.net==='pn';
+  if(periphPB || cDP>0){
+    if(st.series==='s1200'){ res.cabs[0].bom.add(A1200.cm12435, 1, GRP.IM); res.cabs[0].hints.push('S7-1200 не имеет встроенного PROFIBUS — мастером сети работает CM 1243-5.'); }
+    if(st.series==='s1500' && !(cpu && (cpu.dp || cpu.stn))){ res.cabs[0].bom.add(A1500.cm15425, 1, GRP.IM); res.cabs[0].hints.push('PROFIBUS для S7-1500 — через CM 1542-5. Альтернатива — CPU 1516-3 PN/DP со встроенным DP-портом.'); }
+    if(st.series==='s1500' && cpu && cpu.dp){ res.cabs[0].hints.push('PROFIBUS работает через встроенный DP-порт ' + cpu.name + ' — отдельный CM не нужен.'); }
+  }
+  let dpNodes = 0;
+  if(periphPB) dpNodes += 1 + totalStations;
+  if(cDP>0) dpNodes += cDP + (periphPB ? 0 : 1);
+  res.nodes = masters + totalStations;
+  if(dpNodes>0){
+    res.cabs[0].bom.add(NET.pbConn, dpNodes, GRP.NET);
+    res.cabs[0].hints.push('Разъёмы PROFIBUS — по одному на узел, всего ' + dpNodes + ' шт.; на крайних узлах включить терминаторы. У многих DP-устройств (частотники и т.п.) разъём уже есть — лишние уберите. Кабель считается по длине трассы — в расчёт не входит.');
+  }
+  const pnNodes = (periphPN ? totalStations : 0) + cPN;
+  if(pnNodes>0){
+    if(pnNodes>=2){
+      // архитектура «звезда»: коммутатор в шкафу с CPU
+      const ports = pnNodes + 1;
+      let sw;
+      if(st.series==='s1200' && ports<=4) sw = A1200.csm1277;
+      else if(ports<=5) sw = NET.xb005;
+      else sw = NET.xb008;
+      if(ports>8) res.warnings.push('Узлов PROFINET больше 7 — портов одного коммутатора не хватит: добавьте второй или заложите управляемую сеть.');
+      res.cabs[0].bom.add(sw, 1, GRP.NET);
+      res.cabs[0].hints.push('PROFINET-звезда: коммутатор в шкафу с CPU; станции и устройства подключаются своими патч-кордами (кабели — по месту, в расчёт не входят). Линейную цепочку через 2-портовые модули можно собрать и без коммутатора — тогда уберите его из спецификации.');
+    } else {
+      res.cabs[0].hints.push('PROFINET: единственный узел подключается напрямую к порту CPU. Патч-корд — по месту (в расчёт не входит).');
+    }
+  }
+
+  /* ---- каналы по шкафам ---- */
+  const rawCabs = st.cabs.map(c=>{
+    const o = {}; for(const t of TYPES) o[t] = c[t]||0;
+    if(!st.fast){ o.DI += o.CNT; o.CNT = 0; }
+    return o;
+  });
+  res.cabs.forEach((cab,i)=>{
+    if(i>=rawCabs.length) return;
+    cab.free = {};
+    for(const t of TYPES){
+      if((rawCabs[i][t]||0)>0 || (provCabs[i][t]||0)>0) cab.free[t] = {need:rawCabs[i][t]||0, have:provCabs[i][t]||0};
+    }
+  });
+
+  /* ---- бюджет ---- */
+  let sum = 0;
+  res.cabs.forEach(c=> c.bom.list().forEach(it=>{ const p = CAT[it.art] ? CAT[it.art].price : 0; sum += p*it.qty; }));
+  res.total = sum;
+  res.stations = totalStations;
+  res.cpuName = cpu ? (cpu.name || CAT[cpuArt].name) : '';
+  res.cpuArt = cpuArt;
+  res.cpuStn = (cpu && cpu.stn) || null;
+  if(st.haveCPU && st.cpuOverride==='auto') res.warnings.unshift('Модель существующего ПЛК не указана — расчёт выполнен по типовому ' + res.cpuName + '. Выберите ваш ПЛК в списке под переключателем «Уже есть», чтобы учесть его борт-каналы и лимиты.');
+  return res;
+}
+
+/* ================= UI ================= */
+const $ = s => document.querySelector(s);
+const state = {
+  series:'s1200',
+  cabs:[{DI:0,DO:0,AI:0,RTD:0,TC:0,AO:0,CNT:0}],
+  doType:'t', reserve:15, fast:true, net:'pn', stn:'sp',
+  exp300:'auto', fcType:'screw', card1200:false, cpuOverride:'auto',
+  comm232:0, comm485:0, commDP:0, commPN:0, haveCPU:false
+};
+
+function fmtMoney(x){
+  if(x>=1e6){
+    const v = x/1e6;
+    return (Math.round(v*10)/10).toLocaleString('ru-RU') + ' млн ₽';
+  }
+  return Math.round(x/1000).toLocaleString('ru-RU') + ' тыс ₽';
+}
+function niceLow(x){ return x>=1e6 ? Math.floor(x/1e5)*1e5 : Math.floor(x/1e4)*1e4; }
+function niceHigh(x){ return x>=1e6 ? Math.ceil(x/1e5)*1e5 : Math.ceil(x/1e4)*1e4; }
+
+const DEFS_MAIN = [
+  ['DI','DI', 'Дискретные входы 24 В DC: концевики, кнопки, реле.'],
+  ['DO','DO', 'Дискретные выходы: клапаны, пускатели, лампы.'],
+  ['AI','AI 4–20 мА', 'Аналоговые входы, унифицированный ток: датчики давления, уровня, расхода.'],
+  ['AO','AO', 'Аналоговые выходы: задание частотникам, клапаны с позиционером.']
+];
+const DEFS_EXTRA = [
+  ['RTD','AI RTD', 'Термосопротивления Pt100/Pt1000/50М — отдельные модули RTD.'],
+  ['TC','AI TC', 'Термопары (ХА, ХК, …) — отдельные модули TC.'],
+  ['CNT','Импульсные', 'Энкодеры, импульсные расходомеры. Нужен ли аппаратный счёт — переключатель ниже в параметрах.']
+];
+const extraOpen = {};
+
+function sigInput(c, idx, t){
+  return '<label><span class="t">' + t[1] + ' <i class="i" data-tip="' + t[2] + '">i</i></span><input type="number" min="0" max="4096" inputmode="numeric" placeholder="0" data-cab="' + idx + '" data-t="' + t[0] + '" value="' + (c[t[0]]||'') + '"></label>';
+}
+
+function renderCabs(){
+  const el = $('#cabs');
+  el.innerHTML = '';
+  state.cabs.forEach((c,idx)=>{
+    const d = document.createElement('div');
+    d.className = 'cab';
+    const tag = idx===0 ? '<span class="tag">CPU</span>' : '<span class="tag" style="background:#8fa398">ET 200</span>';
+    const open = !!extraOpen[idx] || DEFS_EXTRA.some(t=> (c[t[0]]||0)>0);
+    let h = '<h3>Шкаф ' + (idx+1) + ' ' + tag + '</h3><div class="sig">';
+    DEFS_MAIN.forEach(t=>{ h += sigInput(c, idx, t); });
+    h += '</div>';
+    h += '<div class="sig" data-extra="' + idx + '" style="margin-top:8px' + (open?'':';display:none') + '">';
+    DEFS_EXTRA.forEach(t=>{ h += sigInput(c, idx, t); });
+    h += '</div>';
+    h += '<button class="morebtn" data-more="' + idx + '"' + (open?' style="display:none"':'') + '>+ Термопары/термосопротивления, энкодеры и пр. (TC, RTD, импульсные)</button>';
+    d.innerHTML = h;
+    el.appendChild(d);
+  });
+  el.querySelectorAll('input[type=number]').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const i = +inp.dataset.cab, t = inp.dataset.t;
+      state.cabs[i][t] = Math.max(0, Math.min(4096, parseInt(inp.value||'0',10)||0));
+      update();
+    });
+  });
+  el.querySelectorAll('.morebtn[data-more]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const i = +b.dataset.more;
+      extraOpen[i] = true;
+      el.querySelector('[data-extra="' + i + '"]').style.display = '';
+      b.style.display = 'none';
+    });
+  });
+}
+
+function setTgl(id, val){
+  document.querySelectorAll('#'+id+' button').forEach(b=> b.classList.toggle('on', b.dataset.v===String(val)));
+}
+function bindTgl(id, fn){
+  document.querySelectorAll('#'+id+' button').forEach(b=> b.addEventListener('click', ()=>{ fn(b.dataset.v); update(); }));
+}
+
+function visibility(){
+  const s = state.series;
+  document.querySelectorAll('#series button').forEach(b=> b.classList.toggle('on', b.dataset.s===s));
+  const anySig = state.cabs.some(c=> ['DI','DO','AI','AO','RTD','TC','CNT'].some(t=> (c[t]||0)>0))
+    || state.comm232>0 || state.comm485>0 || state.commDP>0 || state.commPN>0;
+  $('#paramsHead').classList.toggle('hide', !anySig);
+  $('#params').classList.toggle('hide', !anySig);
+  $('#resNum').textContent = anySig ? '4' : '3';
+  const anyDO = state.cabs.some(c=> (c.DO||0)>0);
+  $('#rowDo').classList.toggle('hide', !anyDO);
+  const anyCNT = state.cabs.some(c=> (c.CNT||0)>0);
+  $('#rowFast').classList.toggle('hide', !anyCNT);
+  // расширение 300-й: не показываем для контроллеров в форм-факторе станции — у них нет реек
+  $('#rowExp').classList.toggle('hide', s!=='s300' || (lastRes && lastRes.cpuStn));
+  const showNS = state.cabs.length>1 || (s==='s300' && state.exp300==='et') || !!(lastRes && lastRes.stations>0);
+  $('#rowNet').classList.toggle('hide', !showNS);
+  $('#rowStn').classList.toggle('hide', !showNS);
+  // фронтштекеры настраиваем только когда они реально есть в спецификации
+  const fcArts = [A300.fc20s, A300.fc40s, A300.fc20p, A300.fc40p];
+  const showFC = !!(lastRes && lastRes.cabs.some(cb=> cb.bom.list().some(it=> fcArts.indexOf(it.art)>=0)));
+  const showCard = s==='s1200' && !state.haveCPU;
+  $('#rowFC').classList.toggle('hide', !showFC);
+  $('#rowCard').classList.toggle('hide', !showCard);
+}
+
+function cpuNameByArt(art){
+  if(!art || art==='auto') return null;
+  let f = CPU300.find(c=>c.art===art) || CPU1500.find(c=>c.art===art);
+  if(f) return f.name;
+  f = CPU1200.find(c=> c.arts.t===art || c.arts.r===art || c.arts.a===art);
+  return f ? f.name : null;
+}
+
+function updateCabTags(){
+  const stnName = 'ET 200' + (state.stn==='m'?'M':(state.stn==='s'?'S':'SP'));
+  // при «уже есть» без выбранной модели не выдумываем ПЛК в теге
+  const cpuLbl = (state.haveCPU && state.cpuOverride==='auto')
+    ? 'Ваш ПЛК'
+    : ((lastRes && lastRes.cpuName) ? lastRes.cpuName : (cpuNameByArt(state.cpuOverride) || 'CPU'));
+  document.querySelectorAll('#cabs .cab .tag').forEach((el,i)=>{
+    el.textContent = i===0 ? cpuLbl : stnName;
+  });
+}
+
+function cpuListFor(series){
+  if(series==='s1200'){
+    const out = [], lbl = {t:'DC/DC/DC', r:'DC/DC/Rly', a:'AC/DC/Rly'};
+    CPU1200.forEach(c=>{ ['t','r','a'].forEach(k=>{ if(c.arts[k]) out.push({art:c.arts[k], name:c.name + ' ' + lbl[k]}); }); });
+    return out;
+  }
+  if(series==='s300') return CPU300.map(c=>({art:c.art, name:c.name}));
+  return CPU1500.map(c=>({art:c.art, name:c.name}));
+}
+
+function updateHaveCpuSel(){
+  const wrap = $('#haveCpuSelWrap');
+  wrap.classList.toggle('hide', !state.haveCPU);
+  if(!state.haveCPU) return;
+  const sel = $('#haveCpuSel');
+  let h = '<option value="auto">Укажите ваш ПЛК</option>';
+  cpuListFor(state.series).forEach(c=>{
+    h += '<option value="' + c.art + '"' + (state.cpuOverride===c.art?' selected':'') + '>' + c.name + '</option>';
+  });
+  sel.innerHTML = h;
+}
+
+function cpuSelectHTML(res){
+  let h = '<select id="cpuSel"><option value="auto">Авто: ' + res.cpuName + '</option>';
+  cpuListFor(state.series).forEach(c=>{ h += '<option value="' + c.art + '"' + (state.cpuOverride===c.art?' selected':'') + '>' + c.name + '</option>'; });
+  h += '</select>';
+  return h;
+}
+
+function echoHTML(){
+  let h = '<div class="card echo print-only"><b>Исходные данные</b><table>';
+  h += '<tr><td>Серия</td><td><b>' + (state.series==='s300'?'S7-300':state.series==='s1200'?'S7-1200':'S7-1500') + '</b>, выходы ' + (state.doType==='t'?'транзисторные':'релейные') + ', запас ' + state.reserve + ' %</td></tr>';
+  state.cabs.forEach((c,i)=>{
+    const parts = TYPES.filter(t=>c[t]>0).map(t=> TNAME[t] + ': ' + c[t]);
+    h += '<tr><td>Шкаф ' + (i+1) + '</td><td>' + (parts.join(', ')||'—') + '</td></tr>';
+  });
+  if(state.cabs.length>1) h += '<tr><td>Периферия</td><td>' + (state.net==='pb'?'PROFIBUS':'PROFINET') + ', ET 200' + (state.stn==='m'?'M':state.stn==='s'?'S':'SP') + '</td></tr>';
+  if(state.comm232>0 || state.comm485>0 || state.commDP>0 || state.commPN>0){
+    const cc = [];
+    if(state.comm232>0) cc.push('RS-232: ' + state.comm232 + ' порт.');
+    if(state.comm485>0) cc.push('RS-485/422: ' + state.comm485 + ' порт.');
+    if(state.commDP>0) cc.push('PROFIBUS: ' + state.commDP + ' устр.');
+    if(state.commPN>0) cc.push('PROFINET: ' + state.commPN + ' устр.');
+    h += '<tr><td>Связь</td><td>' + cc.join(', ') + '</td></tr>';
+  }
+  if(state.haveCPU) h += '<tr><td>Контроллер</td><td>уже есть (' + (lastRes?lastRes.cpuName:'') + ') — CPU, карта, БП и рейка не считались</td></tr>';
+  h += '</table></div>';
+  return h;
+}
+
+function render(res){
+  const R = $('#result');
+  if(!res){
+    R.innerHTML = '<div class="card empty">Выберите серию и введите количество сигналов —<br>спецификация появится здесь автоматически.</div>';
+    return;
+  }
+  let h = echoHTML();
+  // CPU строка (при «уже есть» выбор модели — в секции 1, здесь не дублируем)
+  if(!state.haveCPU){
+    h += '<div class="card no-print" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">' +
+         '<span class="lbl">Контроллер <i class="i" data-tip="Подобран автоматически по числу модулей и требованиям сети. Можно выбрать вручную — расчёт пересоберётся, а несовместимости подсветятся предупреждением.">i</i></span>' +
+         cpuSelectHTML(res) + '</div>';
+  }
+
+  if(res.warnings.length){
+    h += '<div class="warns"><b>⚠ Обратите внимание</b><ul>' + res.warnings.map(w=>'<li>'+w+'</li>').join('') + '</ul></div>';
+  }
+
+  const grpOrder = {};
+  [GRP.CPU, GRP.IM, GRP.MOD, GRP.ACC, GRP.PWR, GRP.NET].forEach((g,i)=> grpOrder[g]=i);
+  res.cabs.forEach(cab=>{
+    const items = cab.bom.list().slice().sort((a,b)=> (grpOrder[a.group]||0) - (grpOrder[b.group]||0));
+    if(!items.length) return;
+    h += '<div class="res-cab"><h3>' + cab.title + '</h3><div class="bomwrap"><table class="bom"><tr><th>Артикул</th><th>Наименование</th><th style="text-align:right">Кол-во</th></tr>';
+    let lastGrp = '';
+    items.forEach(it=>{
+      if(it.group!==lastGrp){ h += '<tr class="grp"><td colspan="3">' + it.group + '</td></tr>'; lastGrp = it.group; }
+      const c = CAT[it.art] || {name:'?'};
+      h += '<tr><td class="art">' + it.art + '</td><td>' + c.name + '</td><td class="q">' + it.qty + '</td></tr>';
+    });
+    h += '</table></div>';
+    if(cab.mount && cab.mount.w>0){
+      if(cab.mount.spare){
+        h += '<div class="mount">📏 Понадобится свободное место на рейке: <b>~' + cab.mount.w + ' мм</b> под новые модули</div>';
+      } else {
+        const std = [300,400,500,600,800,1000,1200];
+        const rec = std.find(v=> v >= cab.mount.w + 120);
+        h += '<div class="mount">📏 Монтажная длина ряда: <b>~' + cab.mount.w + ' мм</b> · шкаф шириной от <b>' + (rec || 1200) + ' мм</b>' + (rec ? '' : ' (или компоновка в два ряда)') + ' — с запасом на кабель-каналы</div>';
+      }
+    }
+    if(cab.free){
+      const bars = TYPES.map(t=>{
+        const f = cab.free[t];
+        if(!f || !f.have) return '';
+        const pct = Math.min(100, Math.round(f.need / f.have * 100));
+        const spare = f.have - f.need;
+        return '<div class="brow"><span class="blbl">' + TNAME[t] + '</span>' +
+          '<div class="bar"><div class="bfill" style="width:' + pct + '%"></div>' +
+          '<span class="bnum">' + f.need + ' / ' + f.have + '</span></div>' +
+          '<span class="bfree">' + (spare>0 ? '+' + spare + ' своб.' : 'впритык') + '</span></div>';
+      }).join('');
+      if(bars) h += '<div class="muted" style="margin-top:10px"><b>' + (cab.mount && cab.mount.spare ? 'Каналы добавляемых модулей: занято / всего' : 'Каналы: занято / всего') + '</b> (запас ' + state.reserve + ' %)</div><div style="margin-top:4px">' + bars + '</div>';
+    }
+    if(cab.hints.length) h += '<div class="muted" style="margin-top:6px">' + cab.hints.map(x=>'· '+x).join('<br>') + '</div>';
+    h += '</div>';
+  });
+
+  // бюджет
+  const lo = niceLow(res.total*0.85), hi = niceHigh(res.total*1.2);
+  h += '<div class="budget"><div class="b1">Бюджет оборудования</div><div class="b2">' + fmtMoney(lo) + ' – ' + fmtMoney(hi) + '</div>' +
+       '<div class="b3">ориентировочно, ' + PRICES_DATE + ' · без учёта монтажных материалов и работ</div></div>';
+
+  // CTA
+  h += '<div class="cta"><b>Нужны точные цены и сроки поставки?</b>' +
+       '<p>Соберём точное КП под ваш проект за 1 рабочий день: актуальные цены, сроки поставки и альтернативы под бюджет. Программируем и запускаем Siemens по всей России.</p>' +
+       '<div class="btns no-print"><a class="p" href="https://asutp.team" target="_blank" rel="noopener">asutp.team</a>' +
+       '<a class="s" href="https://t.me/daniil_asutp_team" target="_blank" rel="noopener">Телеграм-канал</a></div>' +
+       '<div class="print-contacts print-only">asutp.team · t.me/daniil_asutp_team</div></div>';
+
+  // действия
+  h += '<div class="acts no-print"><button class="p" onclick="doPDF()">Скачать PDF</button>' +
+       '<button onclick="copyLink()">Ссылка на расчёт</button>' +
+       '<button onclick="copyText()">Копировать текстом</button></div>' +
+       '<div class="muted no-print" style="text-align:center">PDF: в диалоге печати выберите «Сохранить как PDF»</div>';
+
+  R.innerHTML = h;
+  const sel = $('#cpuSel');
+  if(sel) sel.addEventListener('change', ()=>{ state.cpuOverride = sel.value; update(); });
+}
+
+let lastRes = null;
+function update(){
+  setTgl('doType', state.doType);
+  setTgl('fast', state.fast?'1':'0');
+  setTgl('net', state.net);
+  setTgl('stn', state.stn);
+  setTgl('exp300', state.exp300);
+  setTgl('fcType', state.fcType);
+  setTgl('card1200', state.card1200?'1':'0');
+  setTgl('haveCpu', state.haveCPU?'1':'0');
+  $('#reserveV').textContent = state.reserve + ' %';
+  $('#cabN').textContent = state.cabs.length;
+  lastRes = compute(state);
+  visibility();
+  render(lastRes);
+  updateCabTags();
+  updateHaveCpuSel();
+  saveHash();
+}
+
+function saveHash(){
+  try{
+    const s = btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+    history.replaceState(null,'','#'+s);
+  }catch(e){}
+}
+function loadHash(){
+  try{
+    if(location.hash.length>1){
+      const o = JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(1)))));
+      if(o && o.cabs) Object.assign(state, o);
+    }
+  }catch(e){}
+}
+
+function copyLink(){
+  saveHash();
+  navigator.clipboard && navigator.clipboard.writeText(location.href).then(()=>toast('Ссылка скопирована'));
+}
+function copyText(){
+  if(!lastRes) return;
+  let t = 'Спецификация Siemens — калькулятор ASUTP TEAM\n';
+  lastRes.cabs.forEach(c=>{
+    t += '\n' + c.title + '\n';
+    c.bom.list().forEach(it=>{ t += it.art + '\t' + (CAT[it.art]?CAT[it.art].name:'') + '\t' + it.qty + ' шт.\n'; });
+  });
+  const lo = niceLow(lastRes.total*0.85), hi = niceHigh(lastRes.total*1.2);
+  t += '\nБюджет оборудования: ' + fmtMoney(lo) + ' – ' + fmtMoney(hi) + ' (ориентировочно, ' + PRICES_DATE + ')\n';
+  t += 'Точное КП и сроки поставки: https://asutp.team · t.me/daniil_asutp_team\n';
+  navigator.clipboard && navigator.clipboard.writeText(t).then(()=>toast('Спецификация скопирована'));
+}
+function doPDF(){ window.print(); }
+
+let toastT = null;
+function toast(msg){
+  let el = $('#toast');
+  if(!el){ el = document.createElement('div'); el.id='toast';
+    el.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#243029;color:#fff;padding:10px 18px;border-radius:10px;font-size:14px;z-index:99;transition:opacity .3s';
+    document.body.appendChild(el); }
+  el.textContent = msg; el.style.opacity = '1';
+  clearTimeout(toastT); toastT = setTimeout(()=>{ el.style.opacity='0'; }, 1800);
+}
+
+/* tooltips */
+document.addEventListener('click', e=>{
+  const tip = $('#tip');
+  const i = e.target.closest('.i');
+  if(i){
+    e.preventDefault();
+    tip.textContent = i.dataset.tip;
+    tip.style.display = 'block';
+    const r = i.getBoundingClientRect();
+    let x = r.left + window.scrollX - 10, y = r.bottom + window.scrollY + 8;
+    tip.style.left = '0px'; tip.style.top = '0px';
+    const tw = Math.min(290, tip.offsetWidth||290);
+    if(x + tw > window.scrollX + document.documentElement.clientWidth - 8) x = window.scrollX + document.documentElement.clientWidth - tw - 8;
+    tip.style.left = Math.max(8,x) + 'px'; tip.style.top = y + 'px';
+    e.stopPropagation();
+  } else {
+    tip.style.display = 'none';
+  }
+});
+
+/* bindings */
+document.querySelectorAll('#series button').forEach(b=> b.addEventListener('click', ()=>{
+  state.series = b.dataset.s;
+  state.cpuOverride = 'auto';
+  // станция и сеть периферии подтягиваются под серию
+  state.stn = (b.dataset.s==='s300') ? 'm' : 'sp';
+  state.net = (b.dataset.s==='s300') ? 'pb' : 'pn';
+  update();
+}));
+$('#cabPlus').addEventListener('click', ()=>{ if(state.cabs.length<8){ state.cabs.push({DI:0,DO:0,AI:0,RTD:0,TC:0,AO:0,CNT:0}); renderCabs(); update(); } });
+$('#cabMinus').addEventListener('click', ()=>{ if(state.cabs.length>1){ state.cabs.pop(); renderCabs(); update(); } });
+bindTgl('doType', v=>{ state.doType=v; state.cpuOverride='auto'; });
+bindTgl('fast', v=>{ state.fast = v==='1'; });
+bindTgl('net', v=>{ state.net=v; });
+bindTgl('stn', v=>{ state.stn=v; });
+bindTgl('exp300', v=>{ state.exp300=v; });
+bindTgl('fcType', v=>{ state.fcType=v; });
+bindTgl('card1200', v=>{ state.card1200 = v==='1'; });
+bindTgl('haveCpu', v=>{ state.haveCPU = v==='1'; });
+$('#haveCpuSel').addEventListener('change', e=>{ state.cpuOverride = e.target.value; update(); });
+$('#reserve').addEventListener('input', e=>{ state.reserve = +e.target.value; update(); });
+['comm232','comm485','commDP','commPN'].forEach(id=>{
+  $('#'+id).addEventListener('input', e=>{
+    state[id] = Math.max(0, Math.min(99, parseInt(e.target.value||'0',10)||0));
+    update();
+  });
+});
+
+/* Telegram Mini App: если страница открыта внутри Telegram, SDK (подключён внизу)
+   даёт window.Telegram.WebApp — раскрываем на весь экран и сообщаем о готовности. */
+window.addEventListener('load', ()=>{
+  try{
+    if(window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe !== undefined){
+      Telegram.WebApp.ready();
+      Telegram.WebApp.expand();
+    }
+  }catch(e){}
+});
+
+$('#commOpenBtn').addEventListener('click', ()=>{
+  $('#commCard').classList.remove('hide');
+  $('#commOpenBtn').classList.add('hide');
+});
+
+/* SDK Telegram Mini Apps: в обычном браузере просто ничего не делает */
+const tgs = document.createElement('script');
+tgs.src = 'https://telegram.org/js/telegram-web-app.js';
+document.head.appendChild(tgs);
+
+$('#pdate').textContent = PRICES_DATE;
+loadHash();
+['comm232','comm485','commDP','commPN'].forEach(id=>{ if(state[id]>0) $('#'+id).value = state[id]; });
+if(state.comm232>0 || state.comm485>0 || state.commDP>0 || state.commPN>0){
+  $('#commCard').classList.remove('hide');
+  $('#commOpenBtn').classList.add('hide');
+}
+renderCabs();
+update();
+</script>
+</body>
+</html>
