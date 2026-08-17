@@ -270,6 +270,9 @@ details.set summary{cursor:pointer; font-size:14px; color:var(--mut); padding:6p
 /* ================= ДАННЫЕ =================
    Цены: ориентировочные, ₽, обновляются здесь одним местом. */
 const PRICES_DATE = 'август 2026';
+const METRIKA_ID = 111685881;
+const TG_CONTACT = 'https://t.me/daniil_asutp_team'; // TODO: заменить на личку Даниила t.me/<username>
+function ymGoal(name){ try{ if(window.ym) ym(METRIKA_ID, 'reachGoal', name); }catch(e){} }
 
 const CAT = {}; // art -> {name, price}
 function reg(art, name, price){ CAT[art] = {name:name, price:price}; return art; }
@@ -1279,8 +1282,8 @@ function render(res){
   // CTA
   h += '<div class="cta"><b>Нужны точные цены и сроки поставки?</b>' +
        '<p>Соберём точное КП под ваш проект за 1 рабочий день: актуальные цены, сроки поставки и альтернативы под бюджет. Программируем и запускаем Siemens по всей России.</p>' +
-       '<div class="btns no-print"><a class="p" href="https://asutp.team" target="_blank" rel="noopener">asutp.team</a>' +
-       '<a class="s" href="https://t.me/daniil_asutp_team" target="_blank" rel="noopener">Телеграм-канал</a></div>' +
+       '<div class="btns no-print"><a class="p" href="' + TG_CONTACT + '" target="_blank" rel="noopener" onclick="ymGoal(\'cta_tg\')">Написать в Telegram</a>' +
+       '<a class="s" href="https://asutp.team" target="_blank" rel="noopener" onclick="ymGoal(\'cta_site\')">asutp.team</a></div>' +
        '<div class="print-contacts print-only">asutp.team · t.me/daniil_asutp_team</div></div>';
 
   // действия
@@ -1331,6 +1334,7 @@ function loadHash(){
 
 function copyLink(){
   saveHash();
+  ymGoal('share_link');
   navigator.clipboard && navigator.clipboard.writeText(location.href).then(()=>toast('Ссылка скопирована'));
 }
 function copyText(){
@@ -1343,9 +1347,10 @@ function copyText(){
   const lo = niceLow(lastRes.total*0.85), hi = niceHigh(lastRes.total*1.2);
   t += '\nБюджет оборудования: ' + fmtMoney(lo) + ' – ' + fmtMoney(hi) + ' (ориентировочно, ' + PRICES_DATE + ')\n';
   t += 'Точное КП и сроки поставки: https://asutp.team · t.me/daniil_asutp_team\n';
+  ymGoal('copy_text');
   navigator.clipboard && navigator.clipboard.writeText(t).then(()=>toast('Спецификация скопирована'));
 }
-function doPDF(){ window.print(); }
+function doPDF(){ ymGoal('pdf'); window.print(); }
 
 let toastT = null;
 function toast(msg){
@@ -1428,6 +1433,26 @@ document.head.appendChild(tgs);
 
 $('#pdate').textContent = PRICES_DATE;
 loadHash();
+/* Яндекс.Метрика */
+(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+m[i].l=1*new Date();
+for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+ym(METRIKA_ID, "init", { clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true });
+/* кто пришёл из Telegram — в параметры визита */
+window.addEventListener('load', function(){
+  setTimeout(function(){
+    try{
+      var u = window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user;
+      if(u && window.ym){
+        ym(METRIKA_ID, 'userParams', {tg_id: u.id, tg_username: u.username || '', tg_name: ((u.first_name||'') + ' ' + (u.last_name||'')).trim()});
+        ym(METRIKA_ID, 'params', {opened_in: 'telegram'});
+      }
+    }catch(e){}
+  }, 1200);
+});
+
 ['comm232','comm485','commDP','commPN'].forEach(id=>{ if(state[id]>0) $('#'+id).value = state[id]; });
 if(state.comm232>0 || state.comm485>0 || state.commDP>0 || state.commPN>0){
   $('#commCard').classList.remove('hide');
