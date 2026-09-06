@@ -1446,8 +1446,13 @@ window.addEventListener('load', function(){
     try{
       var u = window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user;
       if(u && window.ym){
-        ym(METRIKA_ID, 'userParams', {tg_id: u.id, tg_username: u.username || '', tg_name: ((u.first_name||'') + ' ' + (u.last_name||'')).trim()});
-        ym(METRIKA_ID, 'params', {opened_in: 'telegram'});
+        ym(METRIKA_ID, 'userParams', {
+          tg_id: u.id,
+          tg_username: u.username || '',
+          tg_link: u.username ? ('https://t.me/' + u.username) : '',
+          tg_name: ((u.first_name||'') + ' ' + (u.last_name||'')).trim()
+        });
+        ym(METRIKA_ID, 'params', {opened_in: 'telegram', tg_user: u.username ? ('@' + u.username) : ('id' + u.id)});
       }
     }catch(e){}
   }, 1200);
