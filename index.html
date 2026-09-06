@@ -1440,11 +1440,15 @@ for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src =
 k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
 (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 ym(METRIKA_ID, "init", { clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true });
-/* кто пришёл из Telegram — в параметры визита */
+/* кто пришёл из Telegram — в параметры визита (с повторными попытками:
+   SDK и счётчик грузятся асинхронно; браузерные заходы помечаем отдельно) */
 window.addEventListener('load', function(){
-  setTimeout(function(){
+  var tries = 0;
+  var timer = setInterval(function(){
+    tries++;
     try{
-      var u = window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user;
+      var wa = window.Telegram && Telegram.WebApp;
+      var u = wa && wa.initDataUnsafe && wa.initDataUnsafe.user;
       if(u && window.ym){
         ym(METRIKA_ID, 'userParams', {
           tg_id: u.id,
@@ -1453,9 +1457,13 @@ window.addEventListener('load', function(){
           tg_name: ((u.first_name||'') + ' ' + (u.last_name||'')).trim()
         });
         ym(METRIKA_ID, 'params', {opened_in: 'telegram', tg_user: u.username ? ('@' + u.username) : ('id' + u.id)});
+        clearInterval(timer);
+      } else if(tries >= 6){
+        if(window.ym) ym(METRIKA_ID, 'params', {opened_in: (wa && wa.initData) ? 'telegram-hidden-user' : 'browser'});
+        clearInterval(timer);
       }
-    }catch(e){}
-  }, 1200);
+    }catch(e){ clearInterval(timer); }
+  }, 700);
 });
 
 ['comm232','comm485','commDP','commPN'].forEach(id=>{ if(state[id]>0) $('#'+id).value = state[id]; });
