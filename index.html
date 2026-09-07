@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Калькулятор модулей Siemens — ASUTP TEAM</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23e8d90c'/%3E%3Cstop offset='1' stop-color='%2300BF4C'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='20' fill='none' stroke='url(%23g)' stroke-width='12'/%3E%3Cg stroke='url(%23g)' stroke-width='10' stroke-linecap='round'%3E%3Cline x1='50' y1='6' x2='50' y2='20'/%3E%3Cline x1='50' y1='80' x2='50' y2='94'/%3E%3Cline x1='6' y1='50' x2='20' y2='50'/%3E%3Cline x1='80' y1='50' x2='94' y2='50'/%3E%3Cline x1='19' y1='19' x2='29' y2='29'/%3E%3Cline x1='71' y1='71' x2='81' y2='81'/%3E%3Cline x1='19' y1='81' x2='29' y2='71'/%3E%3Cline x1='71' y1='29' x2='81' y2='19'/%3E%3C/g%3E%3C/svg%3E">
 <meta name="description" content="Подбор модулей SIMATIC S7-300 / S7-1200 / S7-1500 и периферии ET 200 по количеству сигналов: спецификация с артикулами, обвязкой и ориентировочным бюджетом.">
 <style>
@@ -267,6 +268,30 @@ details.set summary{cursor:pointer; font-size:14px; color:var(--mut); padding:6p
 <div id="tip"></div>
 
 <script>
+/* Захват launch-параметров Telegram ПЕРВЫМ ДЕЛОМ — до того, как приложение
+   перепишет hash своим состоянием (кнопка «Ссылка на расчёт»). */
+const TG_LAUNCH_HASH = (function(){
+  try{
+    if(location.hash.indexOf('tgWebAppData') >= 0){
+      sessionStorage.setItem('tg_launch_hash', location.hash);
+      return location.hash;
+    }
+    return sessionStorage.getItem('tg_launch_hash') || '';
+  }catch(e){
+    return location.hash.indexOf('tgWebAppData') >= 0 ? location.hash : '';
+  }
+})();
+/* Пользователь Telegram из launch-параметров — работает даже если SDK telegram.org не загрузился */
+function tgUserFromHash(){
+  try{
+    if(!TG_LAUNCH_HASH) return null;
+    var data = new URLSearchParams(TG_LAUNCH_HASH.slice(1)).get('tgWebAppData');
+    if(!data) return null;
+    var uj = new URLSearchParams(data).get('user');
+    return uj ? JSON.parse(uj) : null;
+  }catch(e){ return null; }
+}
+
 /* ================= ДАННЫЕ =================
    Цены: ориентировочные, ₽, обновляются здесь одним местом. */
 const PRICES_DATE = 'август 2026';
@@ -1325,7 +1350,7 @@ function saveHash(){
 }
 function loadHash(){
   try{
-    if(location.hash.length>1){
+    if(location.hash.length>1 && location.hash.indexOf('tgWebAppData') < 0){
       const o = JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(1)))));
       if(o && o.cabs) Object.assign(state, o);
     }
@@ -1426,11 +1451,6 @@ $('#commOpenBtn').addEventListener('click', ()=>{
   $('#commOpenBtn').classList.add('hide');
 });
 
-/* SDK Telegram Mini Apps: в обычном браузере просто ничего не делает */
-const tgs = document.createElement('script');
-tgs.src = 'https://telegram.org/js/telegram-web-app.js';
-document.head.appendChild(tgs);
-
 $('#pdate').textContent = PRICES_DATE;
 loadHash();
 /* Яндекс.Метрика */
@@ -1448,7 +1468,7 @@ window.addEventListener('load', function(){
     tries++;
     try{
       var wa = window.Telegram && Telegram.WebApp;
-      var u = wa && wa.initDataUnsafe && wa.initDataUnsafe.user;
+      var u = (wa && wa.initDataUnsafe && wa.initDataUnsafe.user) || tgUserFromHash();
       if(u && window.ym){
         ym(METRIKA_ID, 'userParams', {
           tg_id: u.id,
@@ -1459,7 +1479,7 @@ window.addEventListener('load', function(){
         ym(METRIKA_ID, 'params', {opened_in: 'telegram', tg_user: u.username ? ('@' + u.username) : ('id' + u.id)});
         clearInterval(timer);
       } else if(tries >= 6){
-        if(window.ym) ym(METRIKA_ID, 'params', {opened_in: (wa && wa.initData) ? 'telegram-hidden-user' : 'browser'});
+        if(window.ym) ym(METRIKA_ID, 'params', {opened_in: ((wa && wa.initData) || TG_LAUNCH_HASH) ? 'telegram-hidden-user' : 'browser'});
         clearInterval(timer);
       }
     }catch(e){ clearInterval(timer); }
